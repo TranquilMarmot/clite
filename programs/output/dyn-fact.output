@@ -1,0 +1,41 @@
+Begin parsing... programs/dyn-fact.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {}
+  Block: 
+    Assignment: 
+      Variable: n
+      IntValue: 3
+    Assignment: 
+      Variable: i
+      IntValue: 1
+    Assignment: 
+      Variable: f
+      FloatValue: 1.0
+    Loop: 
+      Binary: 
+        Operator: <
+        Variable: i
+        Variable: n
+      Block: 
+        Assignment: 
+          Variable: i
+          Binary: 
+            Operator: +
+            Variable: i
+            IntValue: 1
+        Assignment: 
+          Variable: f
+          Binary: 
+            Operator: *
+            Variable: f
+            Unary: 
+              Operator: float
+              Variable: i
+
+Begin type checking...programs/dyn-fact.cpp
+
+Type map:
+{  }
+ undefined target in assignment: n

@@ -1,0 +1,75 @@
+Begin parsing... programs/newton.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<a, float>, <x, float>, <result, float>}
+  Block: 
+    Assignment: 
+      Variable: a
+      FloatValue: 4.0
+    Assignment: 
+      Variable: x
+      FloatValue: 1.0
+    Loop: 
+      Binary: 
+        Operator: ||
+        Binary: 
+          Operator: >
+          Binary: 
+            Operator: *
+            Variable: x
+            Variable: x
+          Binary: 
+            Operator: +
+            Variable: a
+            FloatValue: 1.0E-4
+        Binary: 
+          Operator: <
+          Binary: 
+            Operator: *
+            Variable: x
+            Variable: x
+          Binary: 
+            Operator: -
+            Variable: a
+            FloatValue: 1.0E-4
+      Assignment: 
+        Variable: x
+        Binary: 
+          Operator: /
+          Binary: 
+            Operator: +
+            Variable: x
+            Binary: 
+              Operator: /
+              Variable: a
+              Variable: x
+          FloatValue: 2.0
+    Assignment: 
+      Variable: result
+      Variable: x
+
+Begin type checking...programs/newton.cpp
+
+Type map:
+{ <a, float>, <result, float>, <x, float> }
+
+Transformed Abstract Syntax Tree
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<a, float>, <x, float>, <result, float>}
+  Block: 
+    Assignment: 
+      Variable: a
+      FloatValue: 4.0
+    Assignment: 
+      Variable: x
+      FloatValue: 1.0
+    Loop: 
+      Binary: Exception in thread "main" java.lang.NullPointerException
+	at Binary.display(AbstractSyntax.java:344)
+	at Loop.display(AbstractSyntax.java:163)
+	at Block.display(AbstractSyntax.java:108)
+	at Program.display(AbstractSyntax.java:36)
+	at Semantics.main(Semantics.java:180)

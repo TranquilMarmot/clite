@@ -1,0 +1,47 @@
+Begin parsing... programs/clone.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<a, int>, <b, int>, <c, int>, <d, int>}
+  Block: 
+    Assignment: 
+      Variable: b
+      Variable: a
+    Assignment: 
+      Variable: b
+      IntValue: 5
+    Assignment: 
+      Variable: d
+      Variable: c
+    Assignment: 
+      Variable: c
+      IntValue: 7
+
+Begin type checking...programs/clone.cpp
+
+Type map:
+{ <d, int>, <a, int>, <c, int>, <b, int> }
+
+Transformed Abstract Syntax Tree
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<a, int>, <b, int>, <c, int>, <d, int>}
+  Block: 
+    Assignment: 
+      Variable: b
+      Variable: a
+    Assignment: 
+      Variable: b
+      IntValue: 5
+    Assignment: 
+      Variable: d
+      Variable: c
+    Assignment: 
+      Variable: c
+      IntValue: 7
+
+Begin interpreting...programs/clone.cpp
+
+Final State
+{ <d, undef>, <a, undef>, <c, 7>, <b, 5> }

@@ -1,0 +1,53 @@
+Begin parsing... programs/convert.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<f, float>, <i, int>, <c, char>}
+  Block: 
+    Assignment: 
+      Variable: c
+      CharValue: a
+    Assignment: 
+      Variable: i
+      IntValue: 77
+    Assignment: 
+      Variable: f
+      Binary: 
+        Operator: -
+        Variable: i
+        Unary: 
+          Operator: int
+          Variable: c
+
+Begin type checking...programs/convert.cpp
+
+Type map:
+{ <i, int>, <c, char>, <f, float> }
+
+Transformed Abstract Syntax Tree
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<f, float>, <i, int>, <c, char>}
+  Block: 
+    Assignment: 
+      Variable: c
+      CharValue: a
+    Assignment: 
+      Variable: i
+      IntValue: 77
+    Assignment: 
+      Variable: f
+      Unary: 
+        Operator: I2F
+        Binary: 
+          Operator: INT-
+          Variable: i
+          Unary: 
+            Operator: C2I
+            Variable: c
+
+Begin interpreting...programs/convert.cpp
+
+Final State
+{ <i, 77>, <c, a>, <f, -20.0> }

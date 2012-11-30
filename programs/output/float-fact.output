@@ -1,0 +1,77 @@
+Begin parsing... programs/float-fact.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<n, float>, <i, float>, <f, float>}
+  Block: 
+    Assignment: 
+      Variable: n
+      FloatValue: 3.0
+    Assignment: 
+      Variable: i
+      FloatValue: 1.0
+    Assignment: 
+      Variable: f
+      FloatValue: 1.0
+    Loop: 
+      Binary: 
+        Operator: <
+        Variable: i
+        Variable: n
+      Block: 
+        Assignment: 
+          Variable: i
+          Binary: 
+            Operator: +
+            Variable: i
+            FloatValue: 1.0
+        Assignment: 
+          Variable: f
+          Binary: 
+            Operator: *
+            Variable: f
+            Variable: i
+
+Begin type checking...programs/float-fact.cpp
+
+Type map:
+{ <i, float>, <f, float>, <n, float> }
+
+Transformed Abstract Syntax Tree
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<n, float>, <i, float>, <f, float>}
+  Block: 
+    Assignment: 
+      Variable: n
+      FloatValue: 3.0
+    Assignment: 
+      Variable: i
+      FloatValue: 1.0
+    Assignment: 
+      Variable: f
+      FloatValue: 1.0
+    Loop: 
+      Binary: 
+        Operator: FLOAT<
+        Variable: i
+        Variable: n
+      Block: 
+        Assignment: 
+          Variable: i
+          Binary: 
+            Operator: FLOAT+
+            Variable: i
+            FloatValue: 1.0
+        Assignment: 
+          Variable: f
+          Binary: 
+            Operator: FLOAT*
+            Variable: f
+            Variable: i
+
+Begin interpreting...programs/float-fact.cpp
+
+Final State
+{ <i, 3.0>, <f, 6.0>, <n, 3.0> }

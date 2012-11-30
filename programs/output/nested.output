@@ -1,0 +1,75 @@
+Begin parsing... programs/nested.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<a, float>, <b, float>, <c, float>, <d, float>}
+  Block: 
+    Assignment: 
+      Variable: a
+      FloatValue: 5.0
+    Assignment: 
+      Variable: b
+      FloatValue: 4.5
+    Assignment: 
+      Variable: c
+      FloatValue: 3.3
+    Assignment: 
+      Variable: d
+      FloatValue: 2.2
+    Assignment: 
+      Variable: a
+      Binary: 
+        Operator: +
+        Binary: 
+          Operator: *
+          Variable: b
+          Unary: 
+            Operator: float
+            IntValue: 1
+        Binary: 
+          Operator: -
+          Variable: c
+          Variable: d
+
+Begin type checking...programs/nested.cpp
+
+Type map:
+{ <d, float>, <a, float>, <c, float>, <b, float> }
+
+Transformed Abstract Syntax Tree
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<a, float>, <b, float>, <c, float>, <d, float>}
+  Block: 
+    Assignment: 
+      Variable: a
+      FloatValue: 5.0
+    Assignment: 
+      Variable: b
+      FloatValue: 4.5
+    Assignment: 
+      Variable: c
+      FloatValue: 3.3
+    Assignment: 
+      Variable: d
+      FloatValue: 2.2
+    Assignment: 
+      Variable: a
+      Binary: 
+        Operator: FLOAT+
+        Binary: 
+          Operator: FLOAT*
+          Variable: b
+          Unary: 
+            Operator: I2F
+            IntValue: 1
+        Binary: 
+          Operator: FLOAT-
+          Variable: c
+          Variable: d
+
+Begin interpreting...programs/nested.cpp
+
+Final State
+{ <d, 2.2>, <a, 5.6>, <c, 3.3>, <b, 4.5> }

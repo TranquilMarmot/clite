@@ -1,0 +1,48 @@
+Begin parsing... programs/cast.cpp
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<c, int>, <b, float>}
+  Block: 
+    Assignment: 
+      Variable: c
+      IntValue: 1
+    Assignment: 
+      Variable: b
+      Unary: 
+        Operator: -
+        Unary: 
+          Operator: float
+          Variable: c
+
+Begin type checking...programs/cast.cpp
+
+Type map:
+{ <c, int>, <b, float> }
+
+Transformed Abstract Syntax Tree
+
+Program (abstract syntax): 
+  Declarations: 
+    Declarations = {<c, int>, <b, float>}
+  Block: 
+    Assignment: 
+      Variable: c
+      IntValue: 1
+    Assignment: 
+      Variable: b
+      Unary: 
+        Operator: FLOAT-
+        Unary: 
+          Operator: I2F
+          Variable: c
+
+Begin interpreting...programs/cast.cpp
+Exception in thread "main" java.lang.IllegalArgumentException: should never reach here
+	at Semantics.applyUnary(Semantics.java:146)
+	at Semantics.M(Semantics.java:161)
+	at Semantics.M(Semantics.java:33)
+	at Semantics.M(Semantics.java:21)
+	at Semantics.M(Semantics.java:38)
+	at Semantics.M(Semantics.java:7)
+	at Semantics.main(Semantics.java:184)
