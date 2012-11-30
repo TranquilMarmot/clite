@@ -15,7 +15,7 @@ public class Parser {
 	}
 
 	/**
-	 * Create a new parser. Call program() to get program from Lexer
+	 * Create a new parser. Call program() to get program from Lexer.
 	 * @param lexer Lexer to use to generate program
 	 */
 	public Parser(Lexer lexer) {
@@ -69,7 +69,12 @@ public class Parser {
 	 * @return
 	 */
 	private Declarations declarations() {
-		return null; // TODO student exercise
+		Declarations ds = new Declarations();
+		
+		while(isType())
+			declaration(ds);
+		
+		return ds; // TODO student exercise
 	}
 
 	/**
@@ -77,7 +82,16 @@ public class Parser {
 	 * @param ds
 	 */
 	private void declaration(Declarations ds) {
-		// TODO student exercise
+		Type type = type();
+		
+		do{
+			currentToken = lexer.next();
+			Variable v = new Variable(currentToken.value());
+			ds.add(new Declaration(v, type));
+			currentToken = lexer.next();
+		} while(currentToken.type() == TokenType.Comma);
+
+		// student exercise (done)
 	}
 
 	/**
@@ -85,9 +99,19 @@ public class Parser {
 	 * @return
 	 */
 	private Type type() {
-		Type t = null;
-		// TODO student exercise
-		return t;
+		if(currentToken.type() == TokenType.Int)
+			return Type.INT;
+		else if(currentToken.type() == TokenType.Bool)
+			return Type.BOOL;
+		else if(currentToken.type() == TokenType.Float)
+			return Type.FLOAT;
+		else if(currentToken.type() == TokenType.Char)
+			return Type.CHAR;
+		else
+			error("Current token not type (current token: " + currentToken + ")");
+		
+		// student exercise (done)
+		return null;
 	}
 
 	/**
@@ -106,6 +130,7 @@ public class Parser {
 	 */
 	private Block statements() {
 		Block b = new Block();
+		
 		// TODO student exercise
 		return b;
 	}
@@ -129,7 +154,16 @@ public class Parser {
 	 * @return
 	 */
 	private Conditional ifStatement() {
-		return null; // TODO student exercise
+		match(TokenType.If);
+		
+		match(TokenType.LeftParen);
+		Expression expression = expression();
+		match(TokenType.RightParen);
+		
+		Statement ifstatement = statement();
+		Statement elsestatement = (currentToken.type() == TokenType.Else) ? elsestatement = statement() : new Skip();
+		
+		return new Conditional(expression, ifstatement, elsestatement); // student exercise (done)
 	}
 
 	/**
@@ -137,7 +171,15 @@ public class Parser {
 	 * @return
 	 */
 	private Loop whileStatement() {
-		return null; // TODO student exercise
+		match(TokenType.While);
+		
+		match(TokenType.LeftParen);
+		Expression expression = expression();
+		match(TokenType.RightParen);
+		
+		Statement statement = statement();
+		
+		return new Loop(expression, statement); // student exercise (done)
 	}
 
 	/**
@@ -252,9 +294,7 @@ public class Parser {
 		else if (currentToken.type() == TokenType.Char)
 			return new CharValue(currentToken.value().charAt(0));
 		else
-			System.out
-					.println("Got unknown token type for literal! Token value: "
-							+ currentToken.value());
+			System.out.println("Got unknown token type for literal! Token value: " + currentToken.value());
 		return null; // TODO student exercise
 	}
 
@@ -301,7 +341,7 @@ public class Parser {
 
 	private boolean isBooleanLiteral() {
 		return currentToken.type().equals(TokenType.True)
-				|| currentToken.type().equals(TokenType.False);
+			|| currentToken.type().equals(TokenType.False);
 	}
 
 	public static void main(String args[]) {

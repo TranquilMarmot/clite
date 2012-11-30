@@ -104,13 +104,17 @@ class Conditional extends Statement {
 	// elsebranch == null means "if... then"
 
 	Conditional(Expression test, Statement thenbranch) {
-		this(test, thenbranch, new Skip());
+		this(test, thenbranch, null);
 	}
 
 	Conditional(Expression test, Statement thenbranch, Statement elsebranch) {
 		this.test = test;
 		this.thenbranch = thenbranch;
-		this.elsebranch = elsebranch;
+		
+		if(elsebranch == null)
+			elsebranch = new Skip();
+		else
+			this.elsebranch = elsebranch;
 	}
 }
 
