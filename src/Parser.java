@@ -1,18 +1,36 @@
 
+/**
+ * Recursive descent parser that inputs a C++Lite program and
+ * generates its abstract syntax. Each method corresponds to
+ * a concrete syntax grammar rule, which appears as a comment
+ * at the beginning of the method.
+ */
 public class Parser {
-	// Recursive descent parser that inputs a C++Lite program and
-	// generates its abstract syntax. Each method corresponds to
-	// a concrete syntax grammar rule, which appears as a comment
-	// at the beginning of the method.
-
-	private Token currentToken; // current currentToken from the input stream
-	Lexer lexer;
-
-	public Parser(Lexer ts) { // Open the C++Lite source program
-		lexer = ts; // as a currentToken stream, and
-		currentToken = lexer.next(); // retrieve its first Token
+	/**  Current token from the input stream */
+	private Token currentToken;
+	private Lexer lexer;
+	
+	public Parser(String file){
+		this(new Lexer(file));
 	}
 
+	/**
+	 * Create a new parser. Call program() to get program from Lexer
+	 * @param lexer Lexer to use to generate program
+	 */
+	public Parser(Lexer lexer) {
+		this.lexer = lexer;
+		// retrieve first token
+		currentToken = lexer.next();
+	}
+
+	/**
+	 * Check if the current token is the given token type,
+	 * and moves on to the next token if it is,
+	 * errors if it isn't.
+	 * @param t Token type to check for
+	 * @return Value of current token
+	 */
 	private String match(TokenType t) {
 		String value = currentToken.value();
 		if (currentToken.type().equals(t))
@@ -22,24 +40,20 @@ public class Parser {
 		return value;
 	}
 
-	private void error(TokenType tok) {
-		System.err.println("Syntax error: expecting: " + tok + "; saw: "
-				+ currentToken);
-		System.exit(1);
-	}
-
+	private void error(TokenType tok) { error(tok.toString()); }
 	private void error(String tok) {
-		System.err.println("Syntax error: expecting: " + tok + "; saw: "
-				+ currentToken);
+		System.err.println("Syntax error: expecting: " + tok + "; saw: " + currentToken);
 		System.exit(1);
 	}
 
+	/**
+	 * Program --> void main ( ) '{' Declarations Statements '}'
+	 * @return Program generated from Lexer given to this Parser's constructor
+	 */
 	public Program program() {
-		// Program --> void main ( ) '{' Declarations Statements '}'
-		TokenType[] header = { TokenType.Int, TokenType.Main,
-				TokenType.LeftParen, TokenType.RightParen };
+		// bypass "int main ( )"
+		TokenType[] header = { TokenType.Int, TokenType.Main, TokenType.LeftParen, TokenType.RightParen };
 		for (int i = 0; i < header.length; i++)
-			// bypass "int main ( )"
 			match(header[i]);
 		match(TokenType.LeftBrace);
 
@@ -50,39 +64,57 @@ public class Parser {
 		return prog; // TODO student exercise
 	}
 
+	/**
+	 * Declarations --> { Declaration }
+	 * @return
+	 */
 	private Declarations declarations() {
-		// Declarations --> { Declaration }
 		return null; // TODO student exercise
 	}
 
+	/**
+	 * Declaration --> Type Identifier { , Identifier } ;
+	 * @param ds
+	 */
 	private void declaration(Declarations ds) {
-		// Declaration --> Type Identifier { , Identifier } ;
 		// TODO student exercise
 	}
 
+	/**
+	 * Type --> int | bool | float | char
+	 * @return
+	 */
 	private Type type() {
-		// Type --> int | bool | float | char
 		Type t = null;
 		// TODO student exercise
 		return t;
 	}
 
+	/**
+	 * Statement --> ; | Block | Assignment | IfStatement | WhileStatement
+	 * @return
+	 */
 	private Statement statement() {
-		// Statement --> ; | Block | Assignment | IfStatement | WhileStatement
 		Statement s = new Skip();
 		// TODO student exercise
 		return s;
 	}
 
+	/**
+	 * Block --> '{' Statements '}'
+	 * @return
+	 */
 	private Block statements() {
-		// Block --> '{' Statements '}'
 		Block b = new Block();
 		// TODO student exercise
 		return b;
 	}
 
+	/**
+	 * Assignment --> Identifier = Expression ;
+	 * @return
+	 */
 	private Assignment assignment() {
-		// Assignment --> Identifier = Expression ;
 		// find identifier for what's being assigned
 		Variable target = new Variable(match(TokenType.Identifier));
 		match(TokenType.Assign); // match assignment token (=)
@@ -92,18 +124,27 @@ public class Parser {
 		return new Assignment(target, source); // TODO student exercise
 	}
 
+	/**
+	 * IfStatement --> if ( Expression ) Statement [ else Statement ]
+	 * @return
+	 */
 	private Conditional ifStatement() {
-		// IfStatement --> if ( Expression ) Statement [ else Statement ]
 		return null; // TODO student exercise
 	}
 
+	/**
+	 * WhileStatement --> while ( Expression ) Statement
+	 * @return
+	 */
 	private Loop whileStatement() {
-		// WhileStatement --> while ( Expression ) Statement
 		return null; // TODO student exercise
 	}
 
+	/**
+	 * Expression --> Conjunction { || Conjunction }
+	 * @return
+	 */
 	private Expression expression() {
-		// Expression --> Conjunction { || Conjunction }
 		/*
 		 * Expression e; Term t1 = term(); Operator op (???) while(isAddOp()){
 		 * Term ter = term(); e = new Expression(op, e, ter); <- passing e as a
@@ -113,23 +154,35 @@ public class Parser {
 		return conjunction(); // TODO student exercise
 	}
 
+	/**
+	 * Conjunction --> Equality { && Equality }
+	 * @return
+	 */
 	private Expression conjunction() {
-		// Conjunction --> Equality { && Equality }
 		return equality(); // TODO student exercise
 	}
 
+	/**
+	 * Equality --> Relation [ EquOp Relation ]
+	 * @return
+	 */
 	private Expression equality() {
-		// Equality --> Relation [ EquOp Relation ]
 		return null; // TODO student exercise
 	}
 
+	/**
+	 * Relation --> Addition [RelOp Addition]
+	 * @return
+	 */
 	private Expression relation() {
-		// Relation --> Addition [RelOp Addition]
 		return null; // TODO student exercise
 	}
 
+	/**
+	 * Addition --> Term { AddOp Term }
+	 * @return
+	 */
 	private Expression addition() {
-		// Addition --> Term { AddOp Term }
 		Expression e = term();
 		while (isAddOp()) {
 			Operator op = new Operator(match(currentToken.type()));
@@ -139,8 +192,11 @@ public class Parser {
 		return e;
 	}
 
+	/**
+	 * Term --> Factor { MultiplyOp Factor }
+	 * @return
+	 */
 	private Expression term() {
-		// Term --> Factor { MultiplyOp Factor }
 		Expression e = factor();
 		while (isMultiplyOp()) {
 			Operator op = new Operator(match(currentToken.type()));
@@ -150,8 +206,11 @@ public class Parser {
 		return e;
 	}
 
+	/**
+	 * Factor --> [ UnaryOp ] Primary
+	 * @return
+	 */
 	private Expression factor() {
-		// Factor --> [ UnaryOp ] Primary
 		if (isUnaryOp()) {
 			Operator op = new Operator(match(currentToken.type()));
 			Expression term = primary();
@@ -160,9 +219,11 @@ public class Parser {
 			return primary();
 	}
 
+	/**
+	 * Primary --> Identifier | Literal | ( Expression ) | Type ( Expression )
+	 * @return
+	 */
 	private Expression primary() {
-		// Primary --> Identifier | Literal | ( Expression )
-		// | Type ( Expression )
 		Expression e = null;
 		if (currentToken.type().equals(TokenType.Identifier)) {
 			e = new Variable(match(TokenType.Identifier));
@@ -199,43 +260,43 @@ public class Parser {
 
 	private boolean isAddOp() {
 		return currentToken.type().equals(TokenType.Plus)
-				|| currentToken.type().equals(TokenType.Minus);
+			|| currentToken.type().equals(TokenType.Minus);
 	}
 
 	private boolean isMultiplyOp() {
 		return currentToken.type().equals(TokenType.Multiply)
-				|| currentToken.type().equals(TokenType.Divide);
+			|| currentToken.type().equals(TokenType.Divide);
 	}
 
 	private boolean isUnaryOp() {
 		return currentToken.type().equals(TokenType.Not)
-				|| currentToken.type().equals(TokenType.Minus);
+			|| currentToken.type().equals(TokenType.Minus);
 	}
 
 	private boolean isEqualityOp() {
 		return currentToken.type().equals(TokenType.Equals)
-				|| currentToken.type().equals(TokenType.NotEqual);
+			|| currentToken.type().equals(TokenType.NotEqual);
 	}
 
 	private boolean isRelationalOp() {
 		return currentToken.type().equals(TokenType.Less)
-				|| currentToken.type().equals(TokenType.LessEqual)
-				|| currentToken.type().equals(TokenType.Greater)
-				|| currentToken.type().equals(TokenType.GreaterEqual);
+			|| currentToken.type().equals(TokenType.LessEqual)
+			|| currentToken.type().equals(TokenType.Greater)
+			|| currentToken.type().equals(TokenType.GreaterEqual);
 	}
 
 	private boolean isType() {
 		return currentToken.type().equals(TokenType.Int)
-				|| currentToken.type().equals(TokenType.Bool)
-				|| currentToken.type().equals(TokenType.Float)
-				|| currentToken.type().equals(TokenType.Char);
+			|| currentToken.type().equals(TokenType.Bool)
+			|| currentToken.type().equals(TokenType.Float)
+			|| currentToken.type().equals(TokenType.Char);
 	}
 
 	private boolean isLiteral() {
 		return currentToken.type().equals(TokenType.IntLiteral)
-				|| isBooleanLiteral()
-				|| currentToken.type().equals(TokenType.FloatLiteral)
-				|| currentToken.type().equals(TokenType.CharLiteral);
+			|| currentToken.type().equals(TokenType.FloatLiteral)
+			|| currentToken.type().equals(TokenType.CharLiteral)
+			|| isBooleanLiteral();
 	}
 
 	private boolean isBooleanLiteral() {

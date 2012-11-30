@@ -1,9 +1,9 @@
-// Following is the semantics class:
-// The meaning M of a Statement is a State
-// The meaning M of a Expression is a Value
-
+/**
+ * Following is the semantics class:
+ * The meaning M of a Statement is a State
+ * The meaning M of a Expression is a Value
+ */
 public class Semantics {
-
 	State M(Program p) {
 		return M(p.body, initialState(p.decpart));
 	}
@@ -12,7 +12,7 @@ public class Semantics {
 		State state = new State();
 		Value intUndef = new IntValue();
 		for (Declaration decl : d)
-			state.put(decl.v, Value.mkValue(decl.t));
+			state.put(decl.var, Value.mkValue(decl.type));
 		return state;
 	}
 

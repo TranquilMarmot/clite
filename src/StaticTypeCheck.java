@@ -1,16 +1,14 @@
-// StaticTypeCheck.java
-
-
-// Static type checking for Clite is defined by the functions 
-// V and the auxiliary functions typing and typeOf.  These
-// functions use the classes in the Abstract Syntax of Clite.
-
+/**
+ * Static type checking for Clite is defined by the functions 
+ * V and the auxiliary functions typing and typeOf.  These
+ * functions use the classes in the Abstract Syntax of Clite.
+ */
 public class StaticTypeCheck {
 
 	public static TypeMap typing(Declarations d) {
 		TypeMap map = new TypeMap();
 		for (Declaration di : d)
-			map.put(di.v, di.t);
+			map.put(di.var, di.type);
 		return map;
 	}
 
@@ -26,7 +24,7 @@ public class StaticTypeCheck {
 			for (int j = i + 1; j < d.size(); j++) {
 				Declaration di = d.get(i);
 				Declaration dj = d.get(j);
-				check(!(di.v.equals(dj.v)), "duplicate declaration: " + dj.v);
+				check(!(di.var.equals(dj.var)), "duplicate declaration: " + dj.var);
 			}
 	}
 
@@ -133,8 +131,8 @@ public class StaticTypeCheck {
 		// prog.display(); // TODO student exercise
 		System.out.println("\nBegin type checking...");
 		System.out.println("Type map:");
-		TypeMap map = typing(prog.decpart);
-		// map.display(); // TODO student exercise
+		// TypeMap map = typing(prog.decpart); TODO student exercise
+		// map.display();
 		V(prog);
 	} // main
 

@@ -1,29 +1,38 @@
 import java.io.*;
 
+/**
+ * Turns a given file into a token stream
+ */
 public class Lexer {
-	/** Whether or not we're at the end of the file */
-	private boolean isEof = false;
-	/** Current character */
-	private char ch = ' ';
 	/** Used for reading through input */
 	private BufferedReader input;
-	/** The current line */
-	private String line = "";
+	
+	/** Current character */
+	private char currentChar = ' ';
+	
+	/** Current line */
+	private String currentLine = "";
+	
 	/** Current line number in file */
+	@SuppressWarnings("unused")
 	private int lineno = 0;
+	
 	/** Current column number in file */
 	private int col = 1;
-	/** All possible letters */
-	private final String LETTERS = "abcdefghijklmnopqrstuvwxyz"
-			+ "ABCDEFGHIJKLMNOPQRSTeVWXYZ";
-	/** All possible numbers */
-	private final String DIGITS = "0123456789";
-	/** End-of-line char */
-	private final char EOL = '\n';
-	/** End-of-file char */
-	private final char EOF = '\004';
+	
+	/** All possible letters and digits*/
+	private final String
+	LETTERS = "abcdefghijklmnopqrstuvwxyz"
+			+ "ABCDEFGHIJKLMNOPQRSTeVWXYZ",
+	DIGITS  = "0123456789";
+	
+	/** End-of-line and end-of-file chars */
+	private final char EOL = '\n', EOF = '\004';
 
-	public Lexer(String fileName) { // source filename
+	/**
+	 * @param fileName source filename
+	 */
+	public Lexer(String fileName) {
 		try {
 			input = new BufferedReader(new FileReader(fileName));
 		} catch (FileNotFoundException e) {
@@ -32,104 +41,129 @@ public class Lexer {
 		}
 	}
 
-	private char nextChar() { // Return next char
-		if (ch == EOF)
+	/**
+	 * @return next char
+	 */
+	private char nextChar() {
+		if (currentChar == EOF)
 			error("Attempt to read past end of file");
 		col++;
-		if (col >= line.length()) {
+		if (col >= currentLine.length()) {
 			try {
-				line = input.readLine();
+				currentLine = input.readLine();
 			} catch (IOException e) {
 				System.err.println(e);
 				System.exit(1);
 			} // try
-			if (line == null) // at end of file
-				line = "" + EOF;
+			if (currentLine == null) // at end of file
+				currentLine = "" + EOF;
 			else {
 				// System.out.println(lineno + ":\t" + line);
 				lineno++;
-				line += EOL;
+				currentLine += EOL;
 			} // if line
 			col = 0;
 		} // if col
-		return line.charAt(col);
+		return currentLine.charAt(col);
 	}
 
-	public Token next() { // Return next token
+	/**
+	 * @return next token
+	 */
+	public Token next() {
 		do {
-			if (isLetter(ch)) { // ident or keyword
+			/*
+			 *  if the current character is a letter, keep going
+			 *  until hitting something not in
+			 *  LETTERS or DIGITS and return it as a keyword
+			 */
+			if (isLetter(currentChar)) { // ident or keyword
 				String spelling = concat(LETTERS + DIGITS);
 				return Token.keyword(spelling);
-			} else if (isDigit(ch)) { // int or float literal
+			/*
+			 * else if the current character is a digit, keep going
+			 * until hitting something not in DIGITS, then check for a .
+			 * and gobble up another number to make a float if there is one
+			 */
+			} else if (isDigit(currentChar)) { // int or float literal
 				String number = concat(DIGITS);
-				if (ch != '.') // int Literal
+				if (currentChar != '.') // int Literal
 					return Token.mkIntLiteral(number);
 				number += concat(DIGITS);
 				return Token.mkFloatLiteral(number);
+			/*
+			 * else we just return the token type 
+			 */
 			} else
-				switch (ch) {
+				switch (currentChar) {
 				case ' ':
 				case '\t':
 				case '\r':
 				case EOL:
-					ch = nextChar();
+					currentChar = nextChar();
 					break;
 
-				case '/': // divide or comment
-					ch = nextChar();
-					if (ch != '/')
+				// divide or comment
+				case '/':
+					// skip /
+					currentChar = nextChar();
+					// if there's no second /, it's a divide
+					if (currentChar != '/')
 						return Token.divideTok;
-					// comment
-					do {
-						ch = nextChar();
-					} while (ch != EOL);
-					ch = nextChar();
+					// else it's a comment, skip second /
+					currentChar = nextChar();
+					// skip the rest of the line
+					while (currentChar != EOL) 
+						currentChar = nextChar();
+					currentChar = nextChar();
 					break;
 
-				case '\'': // char literal
+				// char literal, grab char and skip second '
+				case '\'':
 					char ch1 = nextChar();
 					nextChar(); // get '
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.mkCharLiteral("" + ch1);
 
+				// end of file
 				case EOF:
 					return Token.eofTok;
 
-					// - * ( ) { } ; , student exercise
+				// - * ( ) { } ; , student exercise (done)
 				case '+':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.plusTok;
 
 				case '-':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.minusTok;
 
 				case '*':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.multiplyTok;
 
 				case '(':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.leftParenTok;
 
 				case ')':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.rightParenTok;
 
 				case '{':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.leftBraceTok;
 
 				case '}':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.rightBraceTok;
 
 				case ';':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.semicolonTok;
 
 				case ',':
-					ch = nextChar();
+					currentChar = nextChar();
 					return Token.commaTok;
 
 				case '&':
@@ -142,7 +176,7 @@ public class Lexer {
 				case '=':
 					return chkOpt('=', Token.assignTok, Token.eqeqTok);
 
-					// < > ! student exercise
+				// < > ! student exercise (done)
 				case '<':
 					return chkOpt('=', Token.ltTok, Token.lteqTok);
 
@@ -153,50 +187,76 @@ public class Lexer {
 					return chkOpt('=', Token.notTok, Token.noteqTok);
 
 				default:
-					error("Illegal character " + ch);
+					error("Illegal character " + currentChar);
 				} // switch
 		} while (true);
 	} // next
 
+	/**
+	 * @param c Character to check
+	 * @return Whether or not the given character is a letter
+	 */
 	private boolean isLetter(char c) {
-		return (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
+		return LETTERS.contains("" + c);
 	}
 
+	/**
+	 * @param c Character to check
+	 * @return Whether or not the given character is a digit
+	 */
 	private boolean isDigit(char c) {
-		// TODO student exercise
-		for (char dig : DIGITS.toCharArray())
-			if (c == dig)
-				return true;
-		return false;
+		return DIGITS.contains("" + c);
 	}
 
+	/**
+	 * Checks if the current character is the given character
+	 * and errors if it isn't
+	 * @param c Character to check for
+	 */
 	private void check(char c) {
-		ch = nextChar();
-		if (ch != c)
+		currentChar = nextChar();
+		if (currentChar != c)
 			error("Illegal character, expecting " + c);
-		ch = nextChar();
+		currentChar = nextChar();
 	}
 
+	/**
+	 * Checks if `c` is `two`'s value and, if it is, skips the current character and returns `two`.
+	 * If it isn't the value of `two`, `one` is returned.
+	 * @param c Character to check for
+	 * @param one Return if c isn't two's value
+	 * @param two Value to check for character
+	 * @return two if c is two's value, one otherwise
+	 */
 	private Token chkOpt(char c, Token one, Token two) {
-		// TODO student exercise
-		if (two.value().equals(("" + ch) + c)) {
-			ch = nextChar(); // skip 'c'
+		// student exercise (done)
+		if (two.value().equals(("" + currentChar) + c)) {
+			currentChar = nextChar(); // skip 'c'
 			return two;
 		} else
 			return one;
 	}
 
+	/**
+	 * Adds characters until it hits one not in the given set
+	 * @param set Set of characters that can be added
+	 * @return String containing word
+	 */
 	private String concat(String set) {
 		String r = "";
-		while (set.indexOf(ch) >= 0) {
-			r += ch;
-			ch = nextChar();
+		while (set.contains("" + currentChar)) {
+			r += currentChar;
+			currentChar = nextChar();
 		}
 		return r;
 	}
 
+	/**
+	 * Print an error
+	 * @param msg Message to print
+	 */
 	public void error(String msg) {
-		System.err.print(line);
+		System.err.print(currentLine);
 		System.err.println("Error: column " + col + " " + msg);
 		System.exit(1);
 	}
