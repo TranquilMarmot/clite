@@ -1,3 +1,19 @@
+package typing;
+import parser.Lexer;
+import parser.Parser;
+import abstractsyntax.Assignment;
+import abstractsyntax.Declaration;
+import abstractsyntax.Declarations;
+import abstractsyntax.Program;
+import abstractsyntax.Skip;
+import abstractsyntax.Type;
+import abstractsyntax.expression.Binary;
+import abstractsyntax.expression.Expression;
+import abstractsyntax.expression.Unary;
+import abstractsyntax.expression.Variable;
+import abstractsyntax.statement.Statement;
+import abstractsyntax.value.Value;
+
 /**
  * Static type checking for Clite is defined by the functions 
  * V and the auxiliary functions typing and typeOf.  These
@@ -29,8 +45,8 @@ public class StaticTypeCheck {
 	}
 
 	public static void V(Program p) {
-		V(p.decpart);
-		V(p.body, typing(p.decpart));
+		V(p.declarations);
+		V(p.body, typing(p.declarations));
 	}
 
 	public static Type typeOf(Expression e, TypeMap tm) {

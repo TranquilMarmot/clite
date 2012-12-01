@@ -1,3 +1,24 @@
+package typing;
+import abstractsyntax.Assignment;
+import abstractsyntax.Declaration;
+import abstractsyntax.Declarations;
+import abstractsyntax.Operator;
+import abstractsyntax.Program;
+import abstractsyntax.Skip;
+import abstractsyntax.expression.Binary;
+import abstractsyntax.expression.Expression;
+import abstractsyntax.expression.Unary;
+import abstractsyntax.expression.Variable;
+import abstractsyntax.statement.Block;
+import abstractsyntax.statement.Conditional;
+import abstractsyntax.statement.Loop;
+import abstractsyntax.statement.Statement;
+import abstractsyntax.value.BoolValue;
+import abstractsyntax.value.CharValue;
+import abstractsyntax.value.FloatValue;
+import abstractsyntax.value.IntValue;
+import abstractsyntax.value.Value;
+
 /**
  * Following is the semantics class:
  * The meaning M of a Statement is a State
@@ -5,12 +26,12 @@
  */
 public class Semantics {
 	State M(Program p) {
-		return M(p.body, initialState(p.decpart));
+		return M(p.body, initialState(p.declarations));
 	}
 
 	State initialState(Declarations d) {
 		State state = new State();
-		Value intUndef = new IntValue();
+		//Value intUndef = new IntValue();
 		for (Declaration decl : d)
 			state.put(decl.var, Value.mkValue(decl.type));
 		return state;
@@ -109,12 +130,13 @@ public class Semantics {
 	}
 
 	public static void main(String args[]) {
+		/*
 		Parser parser = new Parser(new Lexer(args[0]));
 		Program prog = parser.program();
 		// prog.display(); // TODO student exercise
 		System.out.println("\nBegin type checking...");
 		System.out.println("Type map:");
-		TypeMap map = StaticTypeCheck.typing(prog.decpart);
+		TypeMap map = StaticTypeCheck.typing(prog.declarations);
 		// map.display(); // TODO student exercise
 		StaticTypeCheck.V(prog);
 		Program out = TypeTransformer.T(prog, map);
@@ -124,5 +146,6 @@ public class Semantics {
 		State state = semantics.M(out);
 		System.out.println("Final State");
 		// state.display( ); // TODO student exercise
+		 */
 	}
 }

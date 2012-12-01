@@ -1,4 +1,6 @@
+package parser;
 import java.io.*;
+
 
 /**
  * Turns a given file into a token stream
@@ -14,11 +16,10 @@ public class Lexer {
 	private String currentLine = "";
 	
 	/** Current line number in file */
-	@SuppressWarnings("unused")
 	private int lineno = 0;
 	
 	/** Current column number in file */
-	private int col = 1;
+	private int column = 1;
 	
 	/** All possible letters and digits*/
 	private final String
@@ -47,8 +48,8 @@ public class Lexer {
 	private char nextChar() {
 		if (currentChar == EOF)
 			error("Attempt to read past end of file");
-		col++;
-		if (col >= currentLine.length()) {
+		column++;
+		if (column >= currentLine.length()) {
 			try {
 				currentLine = input.readLine();
 			} catch (IOException e) {
@@ -62,9 +63,9 @@ public class Lexer {
 				lineno++;
 				currentLine += EOL;
 			} // if line
-			col = 0;
+			column = 0;
 		} // if col
-		return currentLine.charAt(col);
+		return currentLine.charAt(column);
 	}
 
 	/**
@@ -89,8 +90,10 @@ public class Lexer {
 				String number = concat(DIGITS);
 				if (currentChar != '.') // int Literal
 					return Token.mkIntLiteral(number);
-				number += concat(DIGITS);
-				return Token.mkFloatLiteral(number);
+				else{
+					number += concat("." + DIGITS);
+					return Token.mkFloatLiteral(number);
+				}
 			/*
 			 * else we just return the token type 
 			 */
@@ -166,6 +169,7 @@ public class Lexer {
 					currentChar = nextChar();
 					return Token.commaTok;
 
+				// FIXME this skips logical and and or?
 				case '&':
 					check('&');
 					return Token.andTok;
@@ -229,12 +233,14 @@ public class Lexer {
 	 * @return two if c is two's value, one otherwise
 	 */
 	private Token chkOpt(char c, Token one, Token two) {
-		// student exercise (done)
-		if (two.value().equals(("" + currentChar) + c)) {
-			currentChar = nextChar(); // skip 'c'
+		// student exercise (done) FIXME
+		char nextChar = nextChar();
+		if (nextChar == c) { // skip 'c'
 			return two;
-		} else
+		} else{
+			currentChar = nextChar;
 			return one;
+		}
 	}
 
 	/**
@@ -256,16 +262,26 @@ public class Lexer {
 	 * @param msg Message to print
 	 */
 	public void error(String msg) {
+		System.err.println("Error in Lexer!");
+		System.err.println("Line: " + lineno + " Col: " + column);
 		System.err.print(currentLine);
-		System.err.println("Error: column " + col + " " + msg);
+		System.err.println("Error: column " + column + " " + msg);
 		System.exit(1);
+	}
+	
+	public int lineNumber(){
+		return lineno;
+	}
+	
+	public int columnNumber(){
+		return column;
 	}
 
 	static public void main(String[] argv) {
 		Lexer lexer = new Lexer(argv[0]);
 		Token tok = lexer.next();
 		while (tok != Token.eofTok) {
-			System.out.println(tok.toString());
+			System.out.println(tok.type() + " | " + tok.toString());
 			tok = lexer.next();
 		}
 	} // main

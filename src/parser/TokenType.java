@@ -1,3 +1,4 @@
+package parser;
 public enum TokenType {
 	Main, Eof,
 	

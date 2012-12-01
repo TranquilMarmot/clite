@@ -1,8 +1,23 @@
-// Following is the semantics class
-// for a dynamically typed language.
-// The meaning M of a Statement is a State.
-// The meaning M of a Expression is a Value.
+package typing;
+import abstractsyntax.Operator;
+import abstractsyntax.Program;
+import abstractsyntax.Type;
+import abstractsyntax.expression.Binary;
+import abstractsyntax.expression.Expression;
+import abstractsyntax.expression.Unary;
+import abstractsyntax.expression.Variable;
+import abstractsyntax.value.BoolValue;
+import abstractsyntax.value.CharValue;
+import abstractsyntax.value.FloatValue;
+import abstractsyntax.value.IntValue;
+import abstractsyntax.value.Value;
 
+/**
+ * Following is the semantics class
+ * for a dynamically typed language.
+ * The meaning M of a Statement is a State.
+ * The meaning M of a Expression is a Value.
+ */
 public class DynamicTyping extends Semantics {
 
 	State M(Program p) {
@@ -66,12 +81,12 @@ public class DynamicTyping extends Semantics {
 	}
 
 	public static void main(String args[]) {
-		Parser parser = new Parser(new Lexer(args[0]));
-		Program prog = parser.program();
+		//Parser parser = new Parser(new Lexer(args[0]));
+		//Program prog = parser.program();
 		// prog.display(); // TODO student exercise
-		DynamicTyping dynamic = new DynamicTyping();
-		State state = dynamic.M(prog);
-		System.out.println("Final State");
+		//DynamicTyping dynamic = new DynamicTyping();
+		//State state = dynamic.M(prog);
+		//System.out.println("Final State");
 		// state.display( ); // TODO student exercise
 	}
 }

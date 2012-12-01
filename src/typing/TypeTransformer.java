@@ -1,9 +1,25 @@
+package typing;
+import abstractsyntax.Assignment;
+import abstractsyntax.Operator;
+import abstractsyntax.Program;
+import abstractsyntax.Skip;
+import abstractsyntax.Type;
+import abstractsyntax.expression.Binary;
+import abstractsyntax.expression.Expression;
+import abstractsyntax.expression.Unary;
+import abstractsyntax.expression.Variable;
+import abstractsyntax.statement.Block;
+import abstractsyntax.statement.Conditional;
+import abstractsyntax.statement.Loop;
+import abstractsyntax.statement.Statement;
+import abstractsyntax.value.Value;
+
 
 public class TypeTransformer {
 
 	public static Program T(Program p, TypeMap tm) {
 		Block body = (Block) T(p.body, tm);
-		return new Program(p.decpart, body);
+		return new Program(p.declarations, body);
 	}
 
 	public static Expression T(Expression e, TypeMap tm) {
@@ -14,17 +30,17 @@ public class TypeTransformer {
 		if (e instanceof Binary) {
 			Binary b = (Binary) e;
 			Type typ1 = StaticTypeCheck.typeOf(b.term1, tm);
-			Type typ2 = StaticTypeCheck.typeOf(b.term2, tm);
+			//Type typ2 = StaticTypeCheck.typeOf(b.term2, tm);
 			Expression t1 = T(b.term1, tm);
 			Expression t2 = T(b.term2, tm);
 			if (typ1 == Type.INT)
-				return new Binary(b.op.intMap(b.op.val), t1, t2);
+				return new Binary(Operator.intMap(b.op.val), t1, t2);
 			else if (typ1 == Type.FLOAT)
-				return new Binary(b.op.floatMap(b.op.val), t1, t2);
+				return new Binary(Operator.floatMap(b.op.val), t1, t2);
 			else if (typ1 == Type.CHAR)
-				return new Binary(b.op.charMap(b.op.val), t1, t2);
+				return new Binary(Operator.charMap(b.op.val), t1, t2);
 			else if (typ1 == Type.BOOL)
-				return new Binary(b.op.boolMap(b.op.val), t1, t2);
+				return new Binary(Operator.boolMap(b.op.val), t1, t2);
 			throw new IllegalArgumentException("should never reach here");
 		}
 		// TODO student exercise
@@ -79,17 +95,19 @@ public class TypeTransformer {
 	}
 
 	public static void main(String args[]) {
+		/*
 		Parser parser = new Parser(new Lexer(args[0]));
 		Program prog = parser.program();
 		// prog.display(); // TODO student exercise
 		System.out.println("\nBegin type checking...");
 		System.out.println("Type map:");
-		TypeMap map = StaticTypeCheck.typing(prog.decpart);
+		TypeMap map = StaticTypeCheck.typing(prog.declarations);
 		// map.display(); // TODO student exercise
 		StaticTypeCheck.V(prog);
 		Program out = T(prog, map);
 		System.out.println("Output AST");
 		// out.display(); // TODO student exercise
+		 */
 	} // main
 
 } // class TypeTransformer

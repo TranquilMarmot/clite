@@ -1,3 +1,24 @@
+package parser;
+import abstractsyntax.Assignment;
+import abstractsyntax.Declaration;
+import abstractsyntax.Declarations;
+import abstractsyntax.Operator;
+import abstractsyntax.Program;
+import abstractsyntax.Skip;
+import abstractsyntax.Type;
+import abstractsyntax.expression.Binary;
+import abstractsyntax.expression.Expression;
+import abstractsyntax.expression.Unary;
+import abstractsyntax.expression.Variable;
+import abstractsyntax.statement.Block;
+import abstractsyntax.statement.Conditional;
+import abstractsyntax.statement.Loop;
+import abstractsyntax.statement.Statement;
+import abstractsyntax.value.CharValue;
+import abstractsyntax.value.FloatValue;
+import abstractsyntax.value.IntValue;
+import abstractsyntax.value.Value;
+
 
 /**
  * Recursive descent parser that inputs a C++Lite program and
@@ -8,11 +29,12 @@
 public class Parser {
 	/**  Current token from the input stream */
 	private Token currentToken;
+	
+	/** Lexer that provides token */
 	private Lexer lexer;
 	
-	public Parser(String file){
-		this(new Lexer(file));
-	}
+	/** @param file Location of file to read */
+	public Parser(String file){ this(new Lexer(file)); }
 
 	/**
 	 * Create a new parser. Call program() to get program from Lexer.
@@ -32,17 +54,18 @@ public class Parser {
 	 * @return Value of current token
 	 */
 	private String match(TokenType t) {
-		String value = currentToken.value();
-		if (currentToken.type().equals(t))
+		if (currentToken.type() == t)
 			currentToken = lexer.next();
 		else
 			error(t);
-		return value;
+		return currentToken.value();
 	}
 
 	private void error(TokenType tok) { error(tok.toString()); }
-	private void error(String tok) {
-		System.err.println("Syntax error: expecting: " + tok + "; saw: " + currentToken);
+	private void error(String expected) {
+		System.err.println("Error in parser!");
+		System.err.println("Line: " + lexer.lineNumber() + " Col: " + lexer.columnNumber());
+		System.err.println("Syntax error: expecting: " + expected + "; saw: " + currentToken.value());
 		System.exit(1);
 	}
 
@@ -53,20 +76,21 @@ public class Parser {
 	public Program program() {
 		// bypass "int main ( )"
 		TokenType[] header = { TokenType.Int, TokenType.Main, TokenType.LeftParen, TokenType.RightParen };
-		for (int i = 0; i < header.length; i++)
+		for (int i = 0; i < header.length; i++){
 			match(header[i]);
+		}
 		match(TokenType.LeftBrace);
 
-		// TODO student exercise
+		// student exercise (done)
 		Program prog = new Program(declarations(), statements());
 
 		match(TokenType.RightBrace);
-		return prog; // TODO student exercise
+		return prog; // student exercise (done?)
 	}
 
 	/**
 	 * Declarations --> { Declaration }
-	 * @return
+	 * @return List of declarations
 	 */
 	private Declarations declarations() {
 		Declarations ds = new Declarations();
@@ -74,44 +98,61 @@ public class Parser {
 		while(isType())
 			declaration(ds);
 		
-		return ds; // TODO student exercise
+		return ds; // student exercise (done?)
 	}
 
 	/**
 	 * Declaration --> Type Identifier { , Identifier } ;
-	 * @param ds
+	 * @param ds Declarations list to add declaration to
 	 */
 	private void declaration(Declarations ds) {
+		// grab the Type
 		Type type = type();
 		
 		do{
-			currentToken = lexer.next();
 			Variable v = new Variable(currentToken.value());
 			ds.add(new Declaration(v, type));
+			
 			currentToken = lexer.next();
-		} while(currentToken.type() == TokenType.Comma);
+			
+			// if we're at the end of the line, we're done
+			if(currentToken .type() == TokenType.Semicolon)
+				break;
+			// currentToken will be a comma if there's more declarations of this type, skip comma
+			else
+				currentToken = lexer.next();
+		// keep going until there's no more commas
+		} while(currentToken.type() != TokenType.Semicolon);
+		
+		// skip ;
+		currentToken = lexer.next();
 
 		// student exercise (done)
 	}
 
 	/**
 	 * Type --> int | bool | float | char
-	 * @return
+	 * Also moves on to next token
+	 * @return Type of current token
 	 */
 	private Type type() {
+		Type t = null;
+		
 		if(currentToken.type() == TokenType.Int)
-			return Type.INT;
+			t = Type.INT;
 		else if(currentToken.type() == TokenType.Bool)
-			return Type.BOOL;
+			t = Type.BOOL;
 		else if(currentToken.type() == TokenType.Float)
-			return Type.FLOAT;
+			t = Type.FLOAT;
 		else if(currentToken.type() == TokenType.Char)
-			return Type.CHAR;
+			t = Type.CHAR;
 		else
 			error("Current token not type (current token: " + currentToken + ")");
 		
+		currentToken = lexer.next();
+		
 		// student exercise (done)
-		return null;
+		return t;
 	}
 
 	/**
@@ -119,8 +160,25 @@ public class Parser {
 	 * @return
 	 */
 	private Statement statement() {
-		Statement s = new Skip();
-		// TODO student exercise
+		Statement s = null;
+		
+		if(currentToken.type() == TokenType.Semicolon)
+			return new Skip(); // FIXME not sure what to do here
+		else if(currentToken.type() == TokenType.If)
+			return ifStatement();
+		else if(currentToken.type() == TokenType.While)
+			return whileStatement();
+		else if(currentToken.type() == TokenType.Identifier)
+			return assignment();
+		else if(currentToken.type() == TokenType.LeftBrace){
+			match(TokenType.LeftBrace);
+			Block bl = statements();
+			match(TokenType.RightBrace);
+			return bl;
+		} else
+			error("Unknown statement type: " + currentToken.value());
+		
+		// student exercise (done)
 		return s;
 	}
 
@@ -131,7 +189,10 @@ public class Parser {
 	private Block statements() {
 		Block b = new Block();
 		
-		// TODO student exercise
+		while(currentToken.type() != TokenType.Eof && currentToken.type() != TokenType.RightBrace)
+			b.members.add(statement());
+		
+		// student exercise (done?)
 		return b;
 	}
 
@@ -140,13 +201,18 @@ public class Parser {
 	 * @return
 	 */
 	private Assignment assignment() {
-		// find identifier for what's being assigned
-		Variable target = new Variable(match(TokenType.Identifier));
-		match(TokenType.Assign); // match assignment token (=)
-		Expression source = expression(); // find out what exactly we're
-											// assigning
-		match(TokenType.Semicolon); // match semicolon to complete statement
-		return new Assignment(target, source); // TODO student exercise
+		// get identifier for what's being assigned
+		Variable target = new Variable(match(currentToken.type()));
+		
+		// match =
+		match(TokenType.Assign);
+		
+		// find out what we're assigning the identifier to
+		Expression source = expression();
+		
+		// match semicolon to complete statement
+		match(TokenType.Semicolon);
+		return new Assignment(target, source); // student exercise (done)
 	}
 
 	/**
@@ -187,13 +253,14 @@ public class Parser {
 	 * @return
 	 */
 	private Expression expression() {
-		/*
-		 * Expression e; Term t1 = term(); Operator op (???) while(isAddOp()){
-		 * Term ter = term(); e = new Expression(op, e, ter); <- passing e as a
-		 * parameter is resursion (down the line) } return e; SIMILAR TO
-		 * ADDITION()
-		 */
-		return conjunction(); // TODO student exercise
+		Expression e = conjunction();
+		while(currentToken.type() == TokenType.Or){
+			Operator op = new Operator(match(TokenType.Or));
+			Expression term2 = conjunction();
+			e = new Binary(op, e, term2);
+		}
+		
+		return e; // student exercise (done)
 	}
 
 	/**
@@ -201,7 +268,14 @@ public class Parser {
 	 * @return
 	 */
 	private Expression conjunction() {
-		return equality(); // TODO student exercise
+		Expression e = equality();
+		while(currentToken.type() == TokenType.And){ // FIXME is And &&?
+			Operator op = new Operator(match(TokenType.And));
+			Expression term2 = equality();
+			e = new Binary(op, e, term2);
+		}
+		
+		return e; // student exercise (done)
 	}
 
 	/**
@@ -209,7 +283,14 @@ public class Parser {
 	 * @return
 	 */
 	private Expression equality() {
-		return null; // TODO student exercise
+		Expression e = relation();
+		while(isEqualityOp()){
+			Operator op = new Operator(match(currentToken.type()));
+			Expression term2 = relation();
+			e = new Binary(op, e, term2);
+		}
+		
+		return e; // student exercise (done)
 	}
 
 	/**
@@ -217,7 +298,14 @@ public class Parser {
 	 * @return
 	 */
 	private Expression relation() {
-		return null; // TODO student exercise
+		Expression e = addition();
+		while(isRelationalOp()){
+			Operator op = new Operator(match(currentToken.type()));
+			Expression term2 = addition();
+			e = new Binary(op, e, term2);
+		}
+		
+		return e; // student exercise (done)
 	}
 
 	/**
@@ -287,61 +375,73 @@ public class Parser {
 	}
 
 	private Value literal() {
-		if (currentToken.type() == TokenType.Int)
-			return new IntValue(Integer.parseInt(currentToken.value()));
-		else if (currentToken.type() == TokenType.Float)
-			return new FloatValue(Float.parseFloat(currentToken.value()));
-		else if (currentToken.type() == TokenType.Char)
-			return new CharValue(currentToken.value().charAt(0));
-		else
-			System.out.println("Got unknown token type for literal! Token value: " + currentToken.value());
-		return null; // TODO student exercise
+		try{
+			if (currentToken.type() == TokenType.IntLiteral){
+				Value v = new IntValue(Integer.parseInt(currentToken.value()));
+				match(TokenType.IntLiteral);
+				return v;
+			}else if (currentToken.type() == TokenType.FloatLiteral){
+				Value v = new FloatValue(Float.parseFloat(currentToken.value()));
+				match(TokenType.FloatLiteral);
+				return v;
+			}
+			else if (currentToken.type() == TokenType.CharLiteral){
+				Value v = new CharValue(currentToken.value().charAt(0));
+				match(TokenType.CharLiteral);
+				return v;
+			}
+			else
+				error("unknown token type for literal! Token value: " + currentToken.value());
+		} catch(NumberFormatException e){
+			error("Inavlid number format " + e.getLocalizedMessage());
+		}
+		return null; // student exercise (done)
 	}
 
 	private boolean isAddOp() {
-		return currentToken.type().equals(TokenType.Plus)
-			|| currentToken.type().equals(TokenType.Minus);
+		return currentToken.type() == TokenType.Plus
+			|| currentToken.type() == TokenType.Minus;
 	}
 
 	private boolean isMultiplyOp() {
-		return currentToken.type().equals(TokenType.Multiply)
-			|| currentToken.type().equals(TokenType.Divide);
+		return currentToken.type() == TokenType.Multiply
+			|| currentToken.type() == TokenType.Divide;
 	}
 
 	private boolean isUnaryOp() {
-		return currentToken.type().equals(TokenType.Not)
-			|| currentToken.type().equals(TokenType.Minus);
+		return currentToken.type() == TokenType.Not
+			|| currentToken.type() == TokenType.Minus;
 	}
 
 	private boolean isEqualityOp() {
-		return currentToken.type().equals(TokenType.Equals)
-			|| currentToken.type().equals(TokenType.NotEqual);
+		return currentToken.type() == TokenType.Equals
+			|| currentToken.type() == TokenType.NotEqual;
 	}
 
 	private boolean isRelationalOp() {
-		return currentToken.type().equals(TokenType.Less)
-			|| currentToken.type().equals(TokenType.LessEqual)
-			|| currentToken.type().equals(TokenType.Greater)
-			|| currentToken.type().equals(TokenType.GreaterEqual);
+		return currentToken.type() == TokenType.Less
+			|| currentToken.type() == TokenType.LessEqual
+			|| currentToken.type() == TokenType.Greater
+			|| currentToken.type() == TokenType.GreaterEqual;
 	}
 
 	private boolean isType() {
-		return currentToken.type().equals(TokenType.Int)
-			|| currentToken.type().equals(TokenType.Bool)
-			|| currentToken.type().equals(TokenType.Float)
-			|| currentToken.type().equals(TokenType.Char);
+		return currentToken.type() == TokenType.Int
+			|| currentToken.type() == TokenType.Bool
+			|| currentToken.type() == TokenType.Float
+			|| currentToken.type() == TokenType.Char;
 	}
 
 	private boolean isLiteral() {
-		return currentToken.type().equals(TokenType.IntLiteral)
-			|| currentToken.type().equals(TokenType.FloatLiteral)
-			|| currentToken.type().equals(TokenType.CharLiteral)
+		return currentToken.type() == TokenType.IntLiteral
+			|| currentToken.type() == TokenType.FloatLiteral
+			|| currentToken.type() == TokenType.CharLiteral
 			|| isBooleanLiteral();
 	}
 
 	private boolean isBooleanLiteral() {
-		return currentToken.type().equals(TokenType.True)
-			|| currentToken.type().equals(TokenType.False);
+		return currentToken.type() == TokenType.True
+			|| currentToken.type() == TokenType.False;
 	}
 
 	public static void main(String args[]) {
