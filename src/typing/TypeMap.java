@@ -1,8 +1,9 @@
 package typing;
 import java.util.*;
 
-import abstractsyntax.Type;
-import abstractsyntax.expression.Variable;
+import syntax.Type;
+import syntax.expression.Variable;
+
 
 @SuppressWarnings("serial")
 public class TypeMap extends HashMap<Variable, Type> {

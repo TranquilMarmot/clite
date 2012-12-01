@@ -1,6 +1,6 @@
-package abstractsyntax.value;
+package syntax.value;
 
-import abstractsyntax.Type;
+import syntax.Type;
 
 public class IntValue extends Value {
 	private int value = 0;
@@ -23,7 +23,12 @@ public class IntValue extends Value {
 	public String toString() {
 		if (undef)
 			return "undef";
-		return "" + value;
+		return value + " (Int)";
 	}
 
+	public void display(int indent){
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("| " + value + " (Int)");
+	}
 }

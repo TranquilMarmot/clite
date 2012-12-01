@@ -1,7 +1,7 @@
-package abstractsyntax.value;
+package syntax.value;
 
-import abstractsyntax.Type;
-import abstractsyntax.expression.Expression;
+import syntax.Type;
+import syntax.expression.Expression;
 
 /**
  * Value = IntValue | BoolValue | CharValue | FloatValue

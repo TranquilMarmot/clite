@@ -1,23 +1,23 @@
 package parser;
-import abstractsyntax.Assignment;
-import abstractsyntax.Declaration;
-import abstractsyntax.Declarations;
-import abstractsyntax.Operator;
-import abstractsyntax.Program;
-import abstractsyntax.Skip;
-import abstractsyntax.Type;
-import abstractsyntax.expression.Binary;
-import abstractsyntax.expression.Expression;
-import abstractsyntax.expression.Unary;
-import abstractsyntax.expression.Variable;
-import abstractsyntax.statement.Block;
-import abstractsyntax.statement.Conditional;
-import abstractsyntax.statement.Loop;
-import abstractsyntax.statement.Statement;
-import abstractsyntax.value.CharValue;
-import abstractsyntax.value.FloatValue;
-import abstractsyntax.value.IntValue;
-import abstractsyntax.value.Value;
+import syntax.Declaration;
+import syntax.Declarations;
+import syntax.Operator;
+import syntax.Program;
+import syntax.Skip;
+import syntax.Type;
+import syntax.expression.Binary;
+import syntax.expression.Expression;
+import syntax.expression.Unary;
+import syntax.expression.Variable;
+import syntax.statement.Assignment;
+import syntax.statement.Block;
+import syntax.statement.Conditional;
+import syntax.statement.Loop;
+import syntax.statement.Statement;
+import syntax.value.CharValue;
+import syntax.value.FloatValue;
+import syntax.value.IntValue;
+import syntax.value.Value;
 
 
 /**
@@ -202,7 +202,9 @@ public class Parser {
 	 */
 	private Assignment assignment() {
 		// get identifier for what's being assigned
-		Variable target = new Variable(match(currentToken.type()));
+		Variable target = new Variable(currentToken.value());
+		
+		match(currentToken.type());
 		
 		// match =
 		match(TokenType.Assign);
@@ -255,7 +257,8 @@ public class Parser {
 	private Expression expression() {
 		Expression e = conjunction();
 		while(currentToken.type() == TokenType.Or){
-			Operator op = new Operator(match(TokenType.Or));
+			Operator op = new Operator(currentToken.value());
+			match(TokenType.Or);
 			Expression term2 = conjunction();
 			e = new Binary(op, e, term2);
 		}
@@ -269,8 +272,9 @@ public class Parser {
 	 */
 	private Expression conjunction() {
 		Expression e = equality();
-		while(currentToken.type() == TokenType.And){ // FIXME is And &&?
-			Operator op = new Operator(match(TokenType.And));
+		while(currentToken.type() == TokenType.And){
+			Operator op = new Operator(currentToken.value());
+			match(TokenType.And);
 			Expression term2 = equality();
 			e = new Binary(op, e, term2);
 		}
@@ -285,7 +289,8 @@ public class Parser {
 	private Expression equality() {
 		Expression e = relation();
 		while(isEqualityOp()){
-			Operator op = new Operator(match(currentToken.type()));
+			Operator op = new Operator(currentToken.value());
+			match(currentToken.type());
 			Expression term2 = relation();
 			e = new Binary(op, e, term2);
 		}
@@ -300,7 +305,8 @@ public class Parser {
 	private Expression relation() {
 		Expression e = addition();
 		while(isRelationalOp()){
-			Operator op = new Operator(match(currentToken.type()));
+			Operator op = new Operator(currentToken.value());
+			match(currentToken.type());
 			Expression term2 = addition();
 			e = new Binary(op, e, term2);
 		}
@@ -315,7 +321,8 @@ public class Parser {
 	private Expression addition() {
 		Expression e = term();
 		while (isAddOp()) {
-			Operator op = new Operator(match(currentToken.type()));
+			Operator op = new Operator(currentToken.value());
+			match(currentToken.type());
 			Expression term2 = term();
 			e = new Binary(op, e, term2);
 		}
@@ -329,7 +336,8 @@ public class Parser {
 	private Expression term() {
 		Expression e = factor();
 		while (isMultiplyOp()) {
-			Operator op = new Operator(match(currentToken.type()));
+			Operator op = new Operator(currentToken.value());
+			match(currentToken.type());
 			Expression term2 = factor();
 			e = new Binary(op, e, term2);
 		}
@@ -342,7 +350,8 @@ public class Parser {
 	 */
 	private Expression factor() {
 		if (isUnaryOp()) {
-			Operator op = new Operator(match(currentToken.type()));
+			Operator op = new Operator(currentToken.value());
+			match(currentToken.type());
 			Expression term = primary();
 			return new Unary(op, term);
 		} else
@@ -355,8 +364,9 @@ public class Parser {
 	 */
 	private Expression primary() {
 		Expression e = null;
-		if (currentToken.type().equals(TokenType.Identifier)) {
-			e = new Variable(match(TokenType.Identifier));
+		if (currentToken.type() == TokenType.Identifier) {
+			e = new Variable(currentToken.value());
+			match(TokenType.Identifier);
 		} else if (isLiteral()) {
 			e = literal();
 		} else if (currentToken.type().equals(TokenType.LeftParen)) {
@@ -364,7 +374,8 @@ public class Parser {
 			e = expression();
 			match(TokenType.RightParen);
 		} else if (isType()) {
-			Operator op = new Operator(match(currentToken.type()));
+			Operator op = new Operator(currentToken.value());
+			match(currentToken.type());
 			match(TokenType.LeftParen);
 			Expression term = expression();
 			match(TokenType.RightParen);

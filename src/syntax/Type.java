@@ -1,4 +1,4 @@
-package abstractsyntax;
+package syntax;
 
 /**
  * Type = int | bool | char | float

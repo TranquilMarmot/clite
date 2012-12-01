@@ -99,6 +99,7 @@ public class Lexer {
 			 */
 			} else
 				switch (currentChar) {
+				// skip spaces, tabs, carriage returns, and end-of-line characters
 				case ' ':
 				case '\t':
 				case '\r':
@@ -169,7 +170,7 @@ public class Lexer {
 					currentChar = nextChar();
 					return Token.commaTok;
 
-				// FIXME this skips logical and and or?
+				// FIXME does skips && and ||? do we even handle & and |?
 				case '&':
 					check('&');
 					return Token.andTok;
@@ -233,11 +234,12 @@ public class Lexer {
 	 * @return two if c is two's value, one otherwise
 	 */
 	private Token chkOpt(char c, Token one, Token two) {
-		// student exercise (done) FIXME
+		// student exercise (done)
 		char nextChar = nextChar();
-		if (nextChar == c) { // skip 'c'
+		
+		if (nextChar == c) 
 			return two;
-		} else{
+		else{
 			currentChar = nextChar;
 			return one;
 		}

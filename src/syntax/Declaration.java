@@ -1,6 +1,6 @@
-package abstractsyntax;
+package syntax;
 
-import abstractsyntax.expression.Variable;
+import syntax.expression.Variable;
 
 /**
  * Declaration = Variable v; Type t

@@ -1,18 +1,18 @@
 package typing;
-import abstractsyntax.Assignment;
-import abstractsyntax.Operator;
-import abstractsyntax.Program;
-import abstractsyntax.Skip;
-import abstractsyntax.Type;
-import abstractsyntax.expression.Binary;
-import abstractsyntax.expression.Expression;
-import abstractsyntax.expression.Unary;
-import abstractsyntax.expression.Variable;
-import abstractsyntax.statement.Block;
-import abstractsyntax.statement.Conditional;
-import abstractsyntax.statement.Loop;
-import abstractsyntax.statement.Statement;
-import abstractsyntax.value.Value;
+import syntax.Operator;
+import syntax.Program;
+import syntax.Skip;
+import syntax.Type;
+import syntax.expression.Binary;
+import syntax.expression.Expression;
+import syntax.expression.Unary;
+import syntax.expression.Variable;
+import syntax.statement.Assignment;
+import syntax.statement.Block;
+import syntax.statement.Conditional;
+import syntax.statement.Loop;
+import syntax.statement.Statement;
+import syntax.value.Value;
 
 
 public class TypeTransformer {

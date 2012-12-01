@@ -1,8 +1,9 @@
 package typing;
 import java.util.*;
 
-import abstractsyntax.expression.Variable;
-import abstractsyntax.value.Value;
+import syntax.expression.Variable;
+import syntax.value.Value;
+
 
 @SuppressWarnings("serial")
 public class State extends HashMap<Variable, Value> {

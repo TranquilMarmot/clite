@@ -1,4 +1,4 @@
-package abstractsyntax.expression;
+package syntax.expression;
 
 
 /**
@@ -25,6 +25,12 @@ public class Variable extends Expression {
 	@Override
 	public int hashCode() {
 		return id.hashCode();
+	}
+	
+	public void display(int indent){
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("| " + id);
 	}
 
 }

@@ -1,6 +1,6 @@
-package abstractsyntax.expression;
+package syntax.expression;
 
-import abstractsyntax.Operator;
+import syntax.Operator;
 
 
 /**
@@ -15,5 +15,15 @@ public class Binary extends Expression {
 		term1 = l;
 		term2 = r;
 	} // binary
+	
+	public void display(int indent){
+		term1.display(indent + 1);
+		
+		for(int i = 0; i < indent + 1; i++)
+			System.out.print("   ");
+		System.out.println("| " + op.val);
+		
+		term2.display(indent + 1);
+	}
 
 }

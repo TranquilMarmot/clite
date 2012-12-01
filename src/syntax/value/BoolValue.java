@@ -1,6 +1,6 @@
-package abstractsyntax.value;
+package syntax.value;
 
-import abstractsyntax.Type;
+import syntax.Type;
 
 public class BoolValue extends Value {
 	private boolean value = false;
@@ -28,7 +28,13 @@ public class BoolValue extends Value {
 	public String toString() {
 		if (undef)
 			return "undef";
-		return "" + value;
+		return value + " (Bool)";
+	}
+	
+	public void display(int indent){
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("| " + value + " (Bool)");
 	}
 
 }

@@ -1,16 +1,16 @@
 package typing;
-import abstractsyntax.Operator;
-import abstractsyntax.Program;
-import abstractsyntax.Type;
-import abstractsyntax.expression.Binary;
-import abstractsyntax.expression.Expression;
-import abstractsyntax.expression.Unary;
-import abstractsyntax.expression.Variable;
-import abstractsyntax.value.BoolValue;
-import abstractsyntax.value.CharValue;
-import abstractsyntax.value.FloatValue;
-import abstractsyntax.value.IntValue;
-import abstractsyntax.value.Value;
+import syntax.Operator;
+import syntax.Program;
+import syntax.Type;
+import syntax.expression.Binary;
+import syntax.expression.Expression;
+import syntax.expression.Unary;
+import syntax.expression.Variable;
+import syntax.value.BoolValue;
+import syntax.value.CharValue;
+import syntax.value.FloatValue;
+import syntax.value.IntValue;
+import syntax.value.Value;
 
 /**
  * Following is the semantics class

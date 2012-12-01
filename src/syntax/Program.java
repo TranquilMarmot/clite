@@ -1,7 +1,7 @@
-package abstractsyntax;
+package syntax;
 
-import abstractsyntax.statement.Block;
-import abstractsyntax.statement.Statement;
+import syntax.statement.Block;
+import syntax.statement.Statement;
 
 
 /**
@@ -17,12 +17,14 @@ public class Program {
 	}
 
 	public void display() {
-		for(Declaration d : declarations){
-			System.out.println(d.type + " : " + d.var);
-		}
+		System.out.println("--- Abstract Syntax ---");
+		System.out.println("Declarations:");
+		for(Declaration d : declarations)
+			System.out.println("\t" + d.var + " :: " + d.type);
 		
+		System.out.println("\nBody:");
 		for(Statement s : body.members){
-			System.out.println(s.toString());
+			s.display(1);
 		}
 	}
 }
