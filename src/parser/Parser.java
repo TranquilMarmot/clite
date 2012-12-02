@@ -1,10 +1,9 @@
 package parser;
-import syntax.Declaration;
-import syntax.Declarations;
 import syntax.Operator;
 import syntax.Program;
-import syntax.Skip;
 import syntax.Type;
+import syntax.declaration.Declaration;
+import syntax.declaration.Declarations;
 import syntax.expression.Binary;
 import syntax.expression.Expression;
 import syntax.expression.Unary;
@@ -13,6 +12,7 @@ import syntax.statement.Assignment;
 import syntax.statement.Block;
 import syntax.statement.Conditional;
 import syntax.statement.Loop;
+import syntax.statement.Skip;
 import syntax.statement.Statement;
 import syntax.value.CharValue;
 import syntax.value.FloatValue;
@@ -454,11 +454,4 @@ public class Parser {
 		return currentToken.type() == TokenType.True
 			|| currentToken.type() == TokenType.False;
 	}
-
-	public static void main(String args[]) {
-		Parser parser = new Parser(new Lexer(args[0]));
-		Program prog = parser.program();
-		prog.display(); // display abstract syntax tree
-	} // main
-
 } // Parser

@@ -1,6 +1,5 @@
 package syntax.statement;
 
-import syntax.Skip;
 import syntax.expression.Expression;
 
 /**

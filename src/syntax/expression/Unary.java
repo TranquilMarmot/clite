@@ -12,7 +12,7 @@ public class Unary extends Expression {
 	public Unary(Operator o, Expression e) {
 		op = o;
 		term = e;
-	} // unary
+	}
 	
 	public void display(int indent){
 		for(int i = 0; i < indent; i++)

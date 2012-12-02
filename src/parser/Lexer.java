@@ -69,7 +69,7 @@ public class Lexer {
 	}
 
 	/**
-	 * @return next token
+	 * @return next token from stream
 	 */
 	public Token next() {
 		do {
@@ -267,25 +267,21 @@ public class Lexer {
 		System.err.println("Error in Lexer!");
 		System.err.println("Line: " + lineno + " Col: " + column);
 		System.err.print(currentLine);
-		System.err.println("Error: column " + column + " " + msg);
+		System.err.println("Error: " + msg);
 		System.exit(1);
 	}
 	
+	/**
+	 * @return Current line number
+	 */
 	public int lineNumber(){
 		return lineno;
 	}
 	
+	/**
+	 * @return Current column number
+	 */
 	public int columnNumber(){
 		return column;
 	}
-
-	static public void main(String[] argv) {
-		Lexer lexer = new Lexer(argv[0]);
-		Token tok = lexer.next();
-		while (tok != Token.eofTok) {
-			System.out.println(tok.type() + " | " + tok.toString());
-			tok = lexer.next();
-		}
-	} // main
-
 }

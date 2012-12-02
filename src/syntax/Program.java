@@ -1,5 +1,7 @@
 package syntax;
 
+import syntax.declaration.Declaration;
+import syntax.declaration.Declarations;
 import syntax.statement.Block;
 import syntax.statement.Statement;
 
@@ -17,7 +19,7 @@ public class Program {
 	}
 
 	public void display() {
-		System.out.println("--- Abstract Syntax ---");
+		//System.out.println("--- Abstract Syntax ---");
 		System.out.println("Declarations:");
 		for(Declaration d : declarations)
 			System.out.println("\t" + d.var + " :: " + d.type);

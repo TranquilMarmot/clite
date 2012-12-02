@@ -1,6 +1,5 @@
-package syntax;
+package syntax.statement;
 
-import syntax.statement.Statement;
 
 
 /**

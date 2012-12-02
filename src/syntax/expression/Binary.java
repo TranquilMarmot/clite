@@ -25,5 +25,4 @@ public class Binary extends Expression {
 		
 		term2.display(indent + 1);
 	}
-
 }

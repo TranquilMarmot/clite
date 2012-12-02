@@ -11,9 +11,11 @@ public class State extends HashMap<Variable, Value> {
 	// that are active during interpretation
 
 	public State() {
+		super();
 	}
 
 	public State(Variable key, Value val) {
+		super();
 		put(key, val);
 	}
 
@@ -27,5 +29,12 @@ public class State extends HashMap<Variable, Value> {
 			put(key, t.get(key));
 		return this;
 	}
-
+	
+	public void display(){
+		for(Variable v : this.keySet()){
+			Value val = this.get(v);
+			
+			System.out.println(v + ": " + val);
+		}
+	}
 }

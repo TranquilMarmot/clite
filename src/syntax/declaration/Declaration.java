@@ -1,5 +1,6 @@
-package syntax;
+package syntax.declaration;
 
+import syntax.Type;
 import syntax.expression.Variable;
 
 /**
@@ -13,5 +14,4 @@ public class Declaration {
 		this.var = var;
 		this.type = type;
 	} // declaration */
-
 }

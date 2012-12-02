@@ -64,15 +64,6 @@ public class Token {
 	private Token(TokenType t, String v) {
 		type = t;
 		value = v;
-		
-		// What the hell is this supposed to do?
-		/*
-		if (t.compareTo(TokenType.Eof) < 0) {
-			int ti = t.ordinal();
-			reserved[ti] = v;
-			token[ti] = this;
-		}
-		*/
 	}
 
 	public TokenType type() {
@@ -91,7 +82,7 @@ public class Token {
 			Token keyword = keywords.get(name);
 			return keyword == null ? mkIdentTok(name) : keyword;
 		}
-	} // keyword
+	}
 
 	public static Token mkIdentTok(String name) {
 		return new Token(TokenType.Identifier, name);
@@ -113,10 +104,5 @@ public class Token {
 		if (type.compareTo(TokenType.Identifier) < 0)
 			return value;
 		return type + "\t" + value;
-	} // toString
-
-	public static void main(String[] args) {
-		System.out.println(eofTok);
-		System.out.println(whileTok);
 	}
-} // Token
+}

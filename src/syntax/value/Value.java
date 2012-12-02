@@ -7,7 +7,7 @@ import syntax.expression.Expression;
  * Value = IntValue | BoolValue | CharValue | FloatValue
  */
 public abstract class Value extends Expression {
-	public Type type;
+	protected Type type;
 	protected boolean undef = true;
 
 	/*
