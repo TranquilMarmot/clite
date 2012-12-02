@@ -1,4 +1,6 @@
 package typing;
+import java.util.Iterator;
+
 import syntax.Operator;
 import syntax.Program;
 import syntax.Type;
@@ -37,15 +39,15 @@ public class Interpreter {
 	 * @throws IllegalArgumentException If binary op has illegal types
 	 */
 	public static Value interpretBinary(Binary b, State state) throws IllegalArgumentException {
-		Operator op = b.op;
-		Value v1 = interpret(b.term1, state);
-		Value v2 = interpret(b.term2, state);
+		Operator op = b.operator();
+		Value v1 = interpret(b.term1(), state);
+		Value v2 = interpret(b.term2(), state);
 		
 		//StaticTypeCheck.check(v1.type() == v2.type(), "mismatched types");
-		StaticTypeCheck.check(!v1.isUndef() || !v2.isUndef(), "reference to undef value in binary op");
+		StaticTypeCheck.check(!v1.undefined() || !v2.undefined(), "reference to undef value in binary op");
 		
 		/*   ARITHMETIC OP  --    +, -, *, /   */
-		if (op.ArithmeticOp()) {
+		if (op.isArithmeticOp()) {
 			// int (+, -, *, /) int
 			if (v1.type() == Type.INT && v1.type() == Type.INT) {
 				if (op.val.equals(Operator.PLUS))
@@ -82,7 +84,7 @@ public class Interpreter {
 			// student exercise (done)
 			
 		/*   BOOLEAN OP --  &&, ||  */
-		} else if (op.BooleanOp()){
+		} else if (op.isBooleanOp()){
 			// boolean op and only be performed on booleans
 			if(!(v1.type() == Type.BOOL && v1.type() == Type.BOOL))
 				throw new IllegalArgumentException("Attemped boolean op on " + v1.type() + ", not allowed");
@@ -94,7 +96,7 @@ public class Interpreter {
 			}
 			
 		/*   RELATIONAL OP   --   <, >, <=, >=, ==, !=    */
-		} else if(op.RelationalOp()){
+		} else if(op.isRelationalOp()){
 			// int (<, >, <=, >=, ==, !=) int
 			if (v1.type() == Type.INT && v1.type() == Type.INT) {
 				if(op.val.equals(Operator.LT))
@@ -177,9 +179,9 @@ public class Interpreter {
 	 * @throws IllegalArgumentException If unary has invalid typse
 	 */
 	public static Value interpretUnary(Unary u, State state) throws IllegalArgumentException {
-		Operator op = u.op;
+		Operator op = u.operator();
 		Value v = interpret(u.term, state);
-		StaticTypeCheck.check(!v.isUndef(), "reference to undef value in unary op");
+		StaticTypeCheck.check(!v.undefined(), "reference to undef value in unary op");
 		
 		// boolean not
 		if (op.val.equals(Operator.NOT)){
@@ -239,7 +241,7 @@ public class Interpreter {
 		
 		// allocate space for each variable in the declarations
 		for (Declaration decl : d)
-			state.put(decl.var, Value.mkValue(decl.type));
+			state.put(decl.variable(), Value.mkValue(decl.type()));
 		
 		return state;
 	}
@@ -250,7 +252,7 @@ public class Interpreter {
 	 * @return Final state of program
 	 */
 	public static State interpret(Program p) {
-		return interpret(p.body, initialState(p.declarations));
+		return interpret(p.body(), initialState(p.declarations()));
 	}
 
 	/**
@@ -280,7 +282,7 @@ public class Interpreter {
 	 * @return State after interpreting assignment
 	 */
 	public static State interpret(Assignment a, State state) {
-		return state.onion(a.target, interpret(a.source, state));
+		return state.onion(a.target(), interpret(a.source(), state));
 	}
 
 	/**
@@ -290,8 +292,10 @@ public class Interpreter {
 	 * @return State after interpreting block
 	 */
 	public static State interpret(Block b, State state) {
-		for (Statement s : b.members)
-			state = interpret(s, state);
+		Iterator<Statement> members = b.getMembers();
+		while(members.hasNext())
+			state = interpret(members.next(), state);
+		
 		return state;
 	}
 
@@ -302,10 +306,10 @@ public class Interpreter {
 	 * @return State after interpreting conditional
 	 */
 	public static State interpret(Conditional c, State state) {
-		if (interpret(c.test, state).boolValue())
-			return interpret(c.thenbranch, state);
+		if (interpret(c.test(), state).boolValue())
+			return interpret(c.thenBranch(), state);
 		else
-			return interpret(c.elsebranch, state);
+			return interpret(c.elseBranch(), state);
 	}
 
 	/**
@@ -315,8 +319,8 @@ public class Interpreter {
 	 * @return State after interpreting loop
 	 */
 	public static State interpret(Loop l, State state) {
-		if (interpret(l.test, state).boolValue())
-			return interpret(l, interpret(l.body, state));
+		if (interpret(l.test(), state).boolValue())
+			return interpret(l, interpret(l.body(), state));
 		else
 			return state;
 	}

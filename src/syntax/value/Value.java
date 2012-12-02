@@ -7,8 +7,14 @@ import syntax.expression.Expression;
  * Value = IntValue | BoolValue | CharValue | FloatValue
  */
 public abstract class Value extends Expression {
+	/** Type of this value */
 	protected Type type;
-	protected boolean undef = true;
+	/** Whether or not this value is defined */
+	protected boolean undefined;
+	
+	public Value(){
+		undefined = true;
+	}
 
 	/*
 	 * NOTE:
@@ -18,34 +24,43 @@ public abstract class Value extends Expression {
 	 * design from an OO standpoint, since even a BoolValue will have an IntValue method...)
 	 */
 	
+	/** @return Value of int literal */
 	public int intValue() {
 		assert false : "should never reach here";
 		return 0;
 	}
 
+	/** @return Value of bool literal */
 	public boolean boolValue() {
 		assert false : "should never reach here";
 		return false;
 	}
 
+	/** @return Value of char literal */
 	public char charValue() {
 		assert false : "should never reach here";
 		return ' ';
 	}
 
+	/** @return Value of float literal */
 	public float floatValue() {
 		assert false : "should never reach here";
 		return 0.0f;
 	}
 
-	public boolean isUndef() {
-		return undef;
-	}
+	/**
+	 * @return Whether or not this value has been defined
+	 */
+	public boolean undefined() { return undefined; }
 
-	public Type type() {
-		return type;
-	}
+	/** @return Type of this value */
+	public Type type() { return type; }
 
+	/**
+	 * Makes a new, undefined value of the given type
+	 * @param type Type to make new value of
+	 * @return Undefined value with given type
+	 */
 	public static Value mkValue(Type type) {
 		if (type == Type.INT)
 			return new IntValue();

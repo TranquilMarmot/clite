@@ -11,11 +11,9 @@ import syntax.expression.Variable;
  * Plus a 'display' method to facilitate experimentation.
  */
 public class TypeMap extends HashMap<Variable, Type> {
+	/** Displays all the values in this type map and their types */
 	public void display() {
-		for(Variable v : this.keySet()){
-			Type t = this.get(v);
-			
-			System.out.println("    " + v.toString() + " :: " + t);
-		}
+		for(Variable v : this.keySet())
+			System.out.println("    " + v.toString() + " :: " + this.get(v));
 	}
 }

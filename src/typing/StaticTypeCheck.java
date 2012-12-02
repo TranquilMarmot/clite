@@ -1,4 +1,6 @@
 package typing;
+import java.util.Iterator;
+
 import syntax.Program;
 import syntax.Type;
 import syntax.declaration.Declaration;
@@ -21,7 +23,6 @@ import syntax.value.Value;
  * functions use the classes in the Abstract Syntax of Clite.
  */
 public class StaticTypeCheck {
-
 	/**
 	 * Gets a type map from declarations
 	 * @param d Declarations to build map from
@@ -30,7 +31,7 @@ public class StaticTypeCheck {
 	public static TypeMap typing(Declarations d) {
 		TypeMap map = new TypeMap();
 		for (Declaration di : d)
-			map.put(di.var, di.type);
+			map.put(di.variable(), di.type());
 		return map;
 	}
 
@@ -67,14 +68,14 @@ public class StaticTypeCheck {
 		} else if (e instanceof Binary) {
 			Binary b = (Binary)e;
 			// +, -, *, /
-			if (b.op.ArithmeticOp()){
-				if(typeOf(b.term1, tm) == Type.INT && typeOf(b.term1, tm) == Type.INT)
+			if (b.operator().isArithmeticOp()){
+				if(typeOf(b.term1(), tm) == Type.INT && typeOf(b.term1(), tm) == Type.INT)
 					return Type.INT;
 				else
 					return Type.FLOAT;
 			
 			// &&, ||, <, >, <=, >=, ==, !=
-			} else if (b.op.RelationalOp() || b.op.BooleanOp())
+			} else if (b.operator().isRelationalOp() || b.operator().isBooleanOp())
 				return Type.BOOL;
 			
 			// unknown op
@@ -85,22 +86,22 @@ public class StaticTypeCheck {
 		} else if (e instanceof Unary) {
 			Unary u = (Unary) e;
 			// !
-			if (u.op.NotOp())
+			if (u.operator().isNotOp())
 				return Type.BOOL;
 			// -
-			else if (u.op.NegateOp())
+			else if (u.operator().isNegateOp())
 				return typeOf(u.term, tm);
 			
 			// int cast
-			else if (u.op.intOp())
+			else if (u.operator().isIntOp())
 				return Type.INT;
 			
 			// float cast
-			else if (u.op.floatOp())
+			else if (u.operator().isFloatOp())
 				return Type.FLOAT;
 			
 			// char cast
-			else if (u.op.charOp())
+			else if (u.operator().isCharOp())
 				return Type.CHAR;
 		}
 		throw new IllegalArgumentException("should never reach here");
@@ -111,8 +112,8 @@ public class StaticTypeCheck {
 	 * @param p Program to verify
 	 */
 	public static void verify(Program p) {
-		verify(p.declarations);
-		verify(p.body, typing(p.declarations));
+		verify(p.declarations());
+		verify(p.body(), typing(p.declarations()));
 	}
 
 	/**
@@ -124,7 +125,7 @@ public class StaticTypeCheck {
 			for (int j = i + 1; j < d.size(); j++) {
 				Declaration di = d.get(i);
 				Declaration dj = d.get(j);
-				check(!(di.var.equals(dj.var)), "Caught duplicate declaration in static type checking for: " + dj.var);
+				check(!(di.variable().equals(dj.variable())), "Caught duplicate declaration in static type checking for: " + dj.variable());
 			}
 	}
 
@@ -149,41 +150,41 @@ public class StaticTypeCheck {
 		if (e instanceof Binary) {
 			Binary b = (Binary) e;
 			
-			Type type1 = typeOf(b.term1, tm);
-			Type type2 = typeOf(b.term2, tm);
+			Type type1 = typeOf(b.term1(), tm);
+			Type type2 = typeOf(b.term2(), tm);
 			
-			verify(b.term1, tm);
-			verify(b.term2, tm);
+			verify(b.term1(), tm);
+			verify(b.term2(), tm);
 			
 			// +, -, *, /
 			// Int -> Int   ->   Int | Float -> Float -> Float |
 			// Int -> Float -> Float | Float -> Int   -> Float
-			if (b.op.ArithmeticOp()){
+			if (b.operator().isArithmeticOp()){
 				check((type1 == Type.INT   && type2 == Type.INT)   ||
 				      (type1 == Type.FLOAT && type2 == Type.FLOAT) ||
 				      (type1 == Type.INT   && type2 == Type.FLOAT) ||
 				      (type1 == Type.FLOAT && type2 == Type.INT),
-				      "Type error for arithmetic op " + b.op  + "; got types " + type1 + " and " + type2);
+				      "Type error for arithmetic op " + b.operator()  + "; got types " + type1 + " and " + type2);
 				
 			// <, >, <=, >=, ==, !=
 			// Int  -> Int   -> Bool | Float -> Float -> Bool |
 			// Int  -> Float -> Bool | Float -> Int   -> Bool |
 			// Bool -> Bool  -> Bool | Char  -> Char  -> Bool
-			} else if (b.op.RelationalOp()){
+			} else if (b.operator().isRelationalOp()){
 				check((type1 == Type.INT   && type2 == Type.INT)   ||
 				      (type1 == Type.FLOAT && type2 == Type.FLOAT) ||
 				      (type1 == Type.INT   && type2 == Type.FLOAT) ||
 				      (type1 == Type.FLOAT && type2 == Type.INT)   ||
 				      (type1 == Type.BOOL && type2 == Type.BOOL)   ||
 				      (type1 == Type.CHAR && type2 == Type.CHAR),
-				      "Type error for relational op " + b.op  + "; got types " + type1 + " and " + type2);
+				      "Type error for relational op " + b.operator()  + "; got types " + type1 + " and " + type2);
 			}
 			
 			// &&, ||
 			// Bool -> Bool -> Bool
-			else if (b.op.BooleanOp())
+			else if (b.operator().isBooleanOp())
 				check(type1 == Type.BOOL && type2 == Type.BOOL,
-				"Caught non-bool operand for " + b.op + " in static type checker; got types " + type1 + " and " + type2);
+				"Caught non-bool operand for " + b.operator() + " in static type checker; got types " + type1 + " and " + type2);
 			
 			else
 				throw new IllegalArgumentException("should never reach here");
@@ -200,39 +201,37 @@ public class StaticTypeCheck {
 			
 			// !
 			// Bool -> Bool
-			if(u.op.NotOp()){
+			if(u.operator().isNotOp()){
 				check(t == Type.BOOL,
 				     "Attempted not operation on non-bool (attempted on " + t + ")");
 				
 			// -
 			// Int -> Int | Float -> Float
-			} else if(u.op.NegateOp()){
+			} else if(u.operator().isNegateOp()){
 				check(t == Type.FLOAT || t == Type.INT,
 					 "Attempted negate operation on something other than a float or int (attempted on " + t + ")");
 				
 			// int cast
 			// Float -> Int | Char -> Int
-			} else if(u.op.intOp()){
+			} else if(u.operator().isIntOp()){
 				check(t == Type.FLOAT || t == Type.CHAR,
 					 "Attempted int cast from something other than a float or a char (attempted on " + t + ")");
 			
 			// float cast
 			// Int -> Float
-			} else if(u.op.floatOp()){
+			} else if(u.operator().isFloatOp()){
 				check(t == Type.INT,
 					"Attempted float cast from something other than an int (attempted on " + t + ")");
 				
 			// char cast
 			// Int -> Char
-			} else if(u.op.charOp()){
+			} else if(u.operator().isCharOp()){
 				check(t == Type.INT,
 					 "Attempted char cast from something other than an int (attempted on " + t + ")");
 			}
 		} else{
 			throw new IllegalArgumentException("should never reach here");
 		}
-		
-		// student exercise (done)
 	}
 
 	/**
@@ -254,25 +253,25 @@ public class StaticTypeCheck {
 			Assignment a = (Assignment) s;
 			
 			// make sure target exists
-			check(tm.containsKey(a.target), "Target not found in type map! (target: " + a.target + ")");
+			check(tm.containsKey(a.target()), "Target not found in type map! (target: " + a.target() + ")");
 			
-			verify(a.source, tm);
+			verify(a.source(), tm);
 			
-			Type targettype = (Type) tm.get(a.target);
-			Type srctype = typeOf(a.source, tm);
+			Type targettype = (Type) tm.get(a.target());
+			Type srctype = typeOf(a.source(), tm);
 			
 			if (targettype != srctype) {
 				// assigning an int to a float is ok
 				if (targettype == Type.FLOAT)
 					check(srctype == Type.INT,
-					     "Caught mixed mode assignment in static type checker from " + srctype + " to " + targettype + " (target: " + a.target + ")");
+					     "Caught mixed mode assignment in static type checker from " + srctype + " to " + targettype + " (target: " + a.target() + ")");
 				// assigning a char to an int is ok
 				else if (targettype == Type.INT)
 					check(srctype == Type.CHAR || srctype == Type.FLOAT,
-					     "Caught mixed mode assignment in static type checker from " + srctype + " to " + targettype + " (target: " + a.target + ")");
+					     "Caught mixed mode assignment in static type checker from " + srctype + " to " + targettype + " (target: " + a.target() + ")");
 				else
 					check(false,
-					     "Caught mixed mode assignment in static type checker from " + srctype + " to " + targettype + " (target: " + a.target + ")");
+					     "Caught mixed mode assignment in static type checker from " + srctype + " to " + targettype + " (target: " + a.target() + ")");
 			}
 			return;
 			
@@ -281,29 +280,28 @@ public class StaticTypeCheck {
 			Block b = (Block) s;
 			
 			// check every statement in block
-			for(Statement stat : b.members)
-				verify(stat, tm);
+			Iterator<Statement> members = b.getMembers();
+			while(members.hasNext())
+				verify(members.next(), tm);
 			
 		// while loop
 		} else if(s instanceof Loop) {
 			Loop l = (Loop) s;
 			
 			// verify test and body
-			verify(l.test, tm);
-			verify(l.body, tm);
+			verify(l.test(), tm);
+			verify(l.body(), tm);
 			
 		// if statement
 		} else if(s instanceof Conditional){
 			Conditional c = (Conditional) s;
 			
-			verify(c.test, tm);
-			verify(c.thenbranch, tm);
-			verify(c.elsebranch, tm);
+			verify(c.test(), tm);
+			verify(c.thenBranch(), tm);
+			verify(c.elseBranch(), tm);
 		} else{
 			throw new IllegalArgumentException("should never reach here " + s);
 		}
-		
-		// student exercise (done)
 	}
-} // class StaticTypeCheck
+}
 

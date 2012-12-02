@@ -1,7 +1,6 @@
 package parser;
 import java.io.*;
 
-
 /**
  * Turns a given file into a token stream
  */

@@ -1,5 +1,7 @@
 package syntax;
 
+import java.util.Iterator;
+
 import syntax.declaration.Declaration;
 import syntax.declaration.Declarations;
 import syntax.statement.Block;
@@ -10,23 +12,37 @@ import syntax.statement.Statement;
  * Program = Declarations decpart ; Block body
  */
 public class Program {
-	public Declarations declarations;
-	public Block body;
+	/** Declarations for all variables in program */
+	private Declarations declarations;
+	/** Body of program */
+	private Block body;
 
-	public Program(Declarations decpart, Block body) {
-		this.declarations = decpart;
+	/**
+	 * @param declarations Declarations to use for program
+	 * @param body Body of program
+	 */
+	public Program(Declarations declarations, Block body) {
+		this.declarations = declarations;
 		this.body = body;
 	}
+	
+	/** @return Program's declarations */
+	public Declarations declarations(){ return declarations; }
+	/** @return Body of program */
+	public Block body(){ return body; }
 
+	/**
+	 * Prints out this program's declarations and body
+	 */
 	public void display() {
 		//System.out.println("--- Abstract Syntax ---");
 		System.out.println("Declarations:");
 		for(Declaration d : declarations)
-			System.out.println("\t" + d.var + " :: " + d.type);
+			System.out.println("\t" + d.variable() + " :: " + d.type());
 		
 		System.out.println("\nBody:");
-		for(Statement s : body.members){
-			s.display(1);
-		}
+		Iterator<Statement> members = body.getMembers();
+		while(members.hasNext())
+			members.next().display(1);
 	}
 }

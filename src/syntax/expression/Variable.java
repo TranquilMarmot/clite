@@ -5,8 +5,12 @@ package syntax.expression;
  * Variable = String id
  */
 public class Variable extends Expression {
+	/** ID of variable */
 	private String id;
 
+	/**
+	 * @param id ID of variable
+	 */
 	public Variable(String id) {
 		this.id = id;
 	}
@@ -27,6 +31,7 @@ public class Variable extends Expression {
 		return id.hashCode();
 	}
 	
+	@Override
 	public void display(int indent){
 		for(int i = 0; i < indent; i++)
 			System.out.print("   ");

@@ -9,8 +9,10 @@ public enum Type {
 	CHAR("char"),
 	FLOAT("float");
 
+	/** ID for type */
 	private String id;
 
+	/** @param id ID to use for type */
 	private Type(String id) { this.id = id; }
 
 	@Override

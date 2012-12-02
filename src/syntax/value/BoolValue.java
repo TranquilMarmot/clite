@@ -2,35 +2,51 @@ package syntax.value;
 
 import syntax.Type;
 
+/**
+ * Boolean literal
+ */
 public class BoolValue extends Value {
+	/** Boolean value */
 	private boolean value = false;
 
+	/**
+	 * Create a new, undefined boolean literal
+	 */
 	public BoolValue() {
+		super();
 		type = Type.BOOL;
 	}
 
+	/**
+	 * Create and assign a new bool value
+	 * @param v What to assign value to
+	 */
 	public BoolValue(boolean v) {
 		this();
 		value = v;
-		undef = false;
+		undefined = false;
 	}
 
+	@Override
 	public boolean boolValue() {
-		assert !undef : "reference to undefined bool value";
+		assert !undefined : "reference to undefined bool value";
 		return value;
 	}
 
+	@Override
 	public int intValue() {
-		assert !undef : "reference to undefined bool value";
+		assert !undefined : "reference to undefined bool value";
 		return value ? 1 : 0;
 	}
 
+	@Override
 	public String toString() {
-		if (undef)
+		if (undefined)
 			return "undef";
 		return value + " (Bool)";
 	}
 	
+	@Override
 	public void display(int indent){
 		for(int i = 0; i < indent; i++)
 			System.out.print("   ");

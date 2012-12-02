@@ -6,6 +6,7 @@ package syntax;
  * BooleanOp = && | ||
  */
 public class Operator {
+	/** Possible operators */
 	public final static String
 	// BooleanOp = && | ||
 	AND = "&&",
@@ -43,15 +44,17 @@ public class Operator {
 	 */
 	public Operator(String s) { val = s; }
 
+	@Override
 	public String toString() { return val; }
 
+	@Override
 	public boolean equals(Object obj) { return val.equals(obj); }
 
 	/**
 	 * &&, ||
 	 * @return Whether or not this is a boolean op
 	 */
-	public boolean BooleanOp() {
+	public boolean isBooleanOp() {
 		return val.equals(AND) ||
 		       val.equals(OR);
 	}
@@ -60,7 +63,7 @@ public class Operator {
 	 * <, <=, ==, !=, >=, >
 	 * @return Whether or not this is a relational op
 	 */
-	public boolean RelationalOp() {
+	public boolean isRelationalOp() {
 		return val.equals(LT) ||
 		       val.equals(LE) ||
 		       val.equals(EQ) ||
@@ -73,7 +76,7 @@ public class Operator {
 	 * +, -, *, /
 	 * @return Whether or not this is an arithmetic op
 	 */
-	public boolean ArithmeticOp() {
+	public boolean isArithmeticOp() {
 		return val.equals(PLUS)  ||
 		       val.equals(MINUS) ||
 		       val.equals(TIMES) ||
@@ -84,7 +87,7 @@ public class Operator {
 	 * !
 	 * @return Whether or not this is a not op
 	 */
-	public boolean NotOp() {
+	public boolean isNotOp() {
 		return val.equals(NOT);
 	}
 
@@ -92,31 +95,31 @@ public class Operator {
 	 * -
 	 * @return Whether or not this is a negate op
 	 */
-	public boolean NegateOp() {
+	public boolean isNegateOp() {
 		return val.equals(NEG);
 	}
 
 	/**
-	 * (int) cast
+	 * int cast
 	 * @return Whether or not this is an int cast operator
 	 */
-	public boolean intOp() {
+	public boolean isIntOp() {
 		return val.equals(INT);
 	}
 
 	/**
-	 * (float) cast
+	 * float cast
 	 * @return Whether or not this is a float cast operator
 	 */
-	public boolean floatOp() {
+	public boolean isFloatOp() {
 		return val.equals(FLOAT);
 	}
 
 	/**
-	 * (char) cast
+	 * char cast
 	 * @return Whether or not this is a char cast operator
 	 */
-	public boolean charOp() {
+	public boolean isCharOp() {
 		return val.equals(CHAR);
 	}
 }

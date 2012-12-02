@@ -1,4 +1,6 @@
 package typing;
+import java.util.Iterator;
+
 import syntax.Operator;
 import syntax.Program;
 import syntax.Type;
@@ -12,14 +14,28 @@ import syntax.statement.Loop;
 import syntax.statement.Skip;
 import syntax.statement.Statement;
 
-
+/**
+ * Transforms the types of any operators to match their expressions
+ */
 public class TypeTransformer {
-	public static Program T(Program p, TypeMap tm) {
-		Block body = (Block) T(p.body, tm);
-		return new Program(p.declarations, body);
+	/**
+	 * Transform a program's types
+	 * @param p Program to transform
+	 * @param tm Type map to use for transformation
+	 * @return Transformed program
+	 */
+	public static Program transform(Program p, TypeMap tm) {
+		Block body = (Block) transform(p.body(), tm);
+		return new Program(p.declarations(), body);
 	}
 
-	public static Statement T(Statement s, TypeMap tm) {
+	/**
+	 * Transform a statement's types
+	 * @param s Statement to transform
+	 * @param tm Type map to use for transformation
+	 * @return Transformed statement
+	 */
+	public static Statement transform(Statement s, TypeMap tm) {
 		// skip any skips
 		if (s instanceof Skip)
 			return s;
@@ -28,13 +44,11 @@ public class TypeTransformer {
 		if (s instanceof Assignment) {
 			Assignment a = (Assignment) s;
 			
-			Variable target = a.target;
-			Expression src = a.source;
+			Variable target = a.target();
+			Expression src = a.source();
 			
-			Type targettype = (Type) tm.get(a.target);
-			Type srctype = StaticTypeCheck.typeOf(a.source, tm);
-			
-			System.out.println("t: " + targettype + " | " + "s: " + srctype);
+			Type targettype = (Type) tm.get(a.target());
+			Type srctype = StaticTypeCheck.typeOf(a.source(), tm);
 			
 			if (targettype == Type.FLOAT) {
 				if (srctype == Type.INT) {
@@ -57,35 +71,41 @@ public class TypeTransformer {
 			return new Assignment(target, src);
 		}
 		
+		// conditional statement
 		if (s instanceof Conditional) {
 			Conditional c = (Conditional) s;
 			
-			Expression test = c.test;
+			Expression test = c.test();
 			
-			Statement tbr = T(c.thenbranch, tm);
-			Statement ebr = T(c.elsebranch, tm);
+			Statement tbr = transform(c.thenBranch(), tm);
+			Statement ebr = transform(c.elseBranch(), tm);
 			
 			return new Conditional(test, tbr, ebr);
 		}
+		
+		// while loop
 		if (s instanceof Loop) {
 			Loop l = (Loop) s;
 			
-			Expression test = l.test;
-			Statement body = l.body;
+			Expression test = l.test();
+			Statement body = l.body();
 			
 			return new Loop(test, body);
 		}
+		
+		// block of statments
 		if (s instanceof Block) {
 			Block b = (Block) s;
 			
 			Block out = new Block();
 			
-			for (Statement stmt : b.members)
-				out.members.add(T(stmt, tm));
+			Iterator<Statement> members = b.getMembers();
+			while(members.hasNext())
+				out.addMember(transform(members.next(), tm));
 			
 			return out;
 		}
 		throw new IllegalArgumentException("should never reach here");
 	}
-} // class TypeTransformer
+}
 

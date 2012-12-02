@@ -13,24 +13,33 @@ public class Runner {
 			System.out.println("No args given, need file");
 			return;
 		}
+		
+		System.out.println("-------------------------------");
+		
 		Parser parser = new Parser(new Lexer(args[0]));
 		Program prog = parser.program();
-		prog.display(); // student exercise (done)
+		System.out.println("Initial abstract syntax tree:");
+		prog.display();
 		
-		System.out.println("\nBegin type checking...");
-		System.out.println("Type map:");
-		TypeMap map = StaticTypeCheck.typing(prog.declarations);
-		map.display(); // student exercise (done)
+		System.out.println("\n-------------------------------");
+		
+		System.out.println("\nType map after static type check:");
+		TypeMap map = StaticTypeCheck.typing(prog.declarations());
+		map.display();
 		
 		StaticTypeCheck.verify(prog);
-		Program out = TypeTransformer.T(prog, map);
+		Program out = TypeTransformer.transform(prog, map);
 		
-		System.out.println("\nOutput AST");
-		out.display(); // student exercise (done)
+		System.out.println("\n-------------------------------");
+		
+		System.out.println("\nAbstract syntax tree after type transformer:");
+		out.display(); 
 		
 		State state = Interpreter.interpret(out);
 		
-		System.out.println("\nFinal State");
-		state.display( ); // student exercise (done)
+		System.out.println("\n-------------------------------");
+		
+		System.out.println("\nFinal State:");
+		state.display( );
 	}
 }

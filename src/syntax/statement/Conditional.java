@@ -6,26 +6,45 @@ import syntax.expression.Expression;
  *  Conditional = Expression test; Statement thenbranch, elsebranch
  */
 public class Conditional extends Statement {
-	public Expression test;
-	public Statement thenbranch;
-	public Statement elsebranch;
+	/** Test to be performed */
+	private Expression test;
+	/** Then and Else statements */
+	private Statement thenBranch, elseBranch;
 
-	// elsebranch == null means "if... then"
-
-	public Conditional(Expression test, Statement thenbranch) {
-		this(test, thenbranch, null);
+	/**
+	 * Create a conditional, without an else branch
+	 * @param test Test to perform
+	 * @param thenBranch Statement to execute if test succeeds
+	 */
+	public Conditional(Expression test, Statement thenBranch) {
+		this(test, thenBranch, null);
 	}
 
-	public Conditional(Expression test, Statement thenbranch, Statement elsebranch) {
+	/**
+	 * Create a conditionl, with a then and else branch
+	 * @param test Test to perform
+	 * @param thenBranch Statement to execute if test succeeds
+	 * @param elseBranch Statement to execute if test fails
+	 */
+	public Conditional(Expression test, Statement thenBranch, Statement elseBranch) {
 		this.test = test;
-		this.thenbranch = thenbranch;
+		this.thenBranch = thenBranch;
 		
-		if(elsebranch == null)
-			elsebranch = new Skip();
+		// create skip if there's no else branch
+		if(elseBranch == null)
+			elseBranch = new Skip();
 		else
-			this.elsebranch = elsebranch;
+			this.elseBranch = elseBranch;
 	}
 	
+	/** @return Test to be performed by conditional */
+	public Expression test(){ return test; }
+	/** @return Statement executed if test succeeds */
+	public Statement thenBranch(){ return thenBranch; }
+	/** @return Statement executed if test fails (will be a Skip if no else branch) */
+	public Statement elseBranch(){ return elseBranch; }
+	
+	@Override
 	public void display(int indent){
 		for(int i = 0; i < indent; i++)
 			System.out.print("   ");
@@ -41,14 +60,14 @@ public class Conditional extends Statement {
 			System.out.print("   ");
 		System.out.println("|Then: ");
 		
-		thenbranch.display(indent + 1);
+		thenBranch.display(indent + 1);
 		
-		if(!(elsebranch instanceof Skip)){
+		if(!(elseBranch instanceof Skip)){
 			for(int i = 0; i < indent; i++)
 				System.out.print("   ");
 			System.out.println("|Else: ");
 			
-			elsebranch.display(indent + 1);
+			elseBranch.display(indent + 1);
 		}
 	}
 }
