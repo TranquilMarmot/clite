@@ -12,8 +12,8 @@ public class Unary extends Expression {
 	public Expression term;
 
 	/**
-	 * @param o Operator to be applied to term
-	 * @param e Term to apply operator to
+	 * @param op Operator to be applied to term
+	 * @param term Term to apply operator to
 	 */
 	public Unary(Operator op, Expression term) {
 		this.op = op;

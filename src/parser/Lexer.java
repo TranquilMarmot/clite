@@ -132,7 +132,7 @@ public class Lexer {
 				case EOF:
 					return Token.eofTok;
 
-				// - * ( ) { } ; , student exercise (done)
+				// - * ( ) { } ; ,
 				case '+':
 					currentChar = nextChar();
 					return Token.plusTok;
@@ -180,7 +180,7 @@ public class Lexer {
 				case '=':
 					return chkOpt('=', Token.assignTok, Token.eqeqTok);
 
-				// < > ! student exercise (done)
+				// < > !
 				case '<':
 					return chkOpt('=', Token.ltTok, Token.lteqTok);
 
@@ -233,7 +233,6 @@ public class Lexer {
 	 * @return two if c is two's value, one otherwise
 	 */
 	private Token chkOpt(char c, Token one, Token two) {
-		// student exercise (done)
 		char nextChar = nextChar();
 		
 		if (nextChar == c) 

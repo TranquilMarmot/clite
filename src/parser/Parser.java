@@ -160,7 +160,6 @@ public class Parser {
 
 	/**
 	 * Statement --> ; | Block | Assignment | IfStatement | WhileStatement
-	 * @return
 	 */
 	private Statement statement() {
 		// skip any semicolons
@@ -195,7 +194,7 @@ public class Parser {
 
 	/**
 	 * Block --> '{' Statements '}'
-	 * @return
+	 * @return A block of statements
 	 */
 	private Block statements() {
 		Block b = new Block();
@@ -209,7 +208,6 @@ public class Parser {
 
 	/**
 	 * Assignment --> Identifier = Expression ;
-	 * @return
 	 */
 	private Assignment assignment() {
 		// get identifier for what's being assigned
@@ -230,7 +228,6 @@ public class Parser {
 
 	/**
 	 * IfStatement --> if ( Expression ) Statement [ else Statement ]
-	 * @return
 	 */
 	private Conditional ifStatement() {
 		// gobble up if
@@ -251,7 +248,6 @@ public class Parser {
 
 	/**
 	 * WhileStatement --> while ( Expression ) Statement
-	 * @return
 	 */
 	private Loop whileStatement() {
 		// gobble up while
@@ -333,7 +329,7 @@ public class Parser {
 			e = new Binary(op, e, term2);
 		}
 		
-		return e; // student exercise (done)
+		return e;
 	}
 
 	/**
@@ -388,7 +384,6 @@ public class Parser {
 
 	/**
 	 * Primary --> Identifier | Literal | ( Expression ) | Type ( Expression )
-	 * @return
 	 */
 	private Expression primary() {
 		Expression e = null;

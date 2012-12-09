@@ -7,7 +7,14 @@ import typing.StaticTypeCheck;
 import typing.TypeMap;
 import typing.TypeTransformer;
 
+/**
+ * Parses and interprets a given file
+ */
 public class Runner {
+	/**
+	 * Main method
+	 * @param args Name of file to interpret
+	 */
 	public static void main(String args[]) {
 		if(args.length < 1){
 			System.out.println("No args given, need file");
@@ -27,7 +34,7 @@ public class Runner {
 		TypeMap map = StaticTypeCheck.typing(prog.declarations());
 		map.display();
 		
-		StaticTypeCheck.verify(prog);
+		StaticTypeCheck.validate(prog);
 		Program out = TypeTransformer.transform(prog, map);
 		
 		System.out.println("\n-------------------------------");

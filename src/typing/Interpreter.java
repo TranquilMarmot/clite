@@ -81,7 +81,6 @@ public class Interpreter {
 			} else {
 				throw new IllegalArgumentException("Attemped arithmetic op on a " + v1.type() + " and a " + v2.type() + ", not allowed (v1: " + v1 + " v2: " + v2 + ")");
 			}
-			// student exercise (done)
 			
 		/*   BOOLEAN OP --  &&, ||  */
 		} else if (op.isBooleanOp()){
@@ -166,7 +165,6 @@ public class Interpreter {
 				throw new IllegalArgumentException("Attemped relational op on a " + v1.type() + " and a " + v2.type() + ", not allowed (v1: " + v1 + " v2: " + v2 + ")");
 			}
 		}
-		// student exercise (done)
 		throw new IllegalArgumentException("should never reach here (in DynamicTyping.applyBinary)");
 	}
 

@@ -108,19 +108,19 @@ public class StaticTypeCheck {
 	}
 	
 	/**
-	 * Verify a program's types
-	 * @param p Program to verify
+	 * validate a program's types
+	 * @param p Program to validate
 	 */
-	public static void verify(Program p) {
-		verify(p.declarations());
-		verify(p.body(), typing(p.declarations()));
+	public static void validate(Program p) {
+		validate(p.declarations());
+		validate(p.body(), typing(p.declarations()));
 	}
 
 	/**
-	 * Verify a declaration's types
-	 * @param d Declarations to verify
+	 * validate a declaration's types
+	 * @param d Declarations to validate
 	 */
-	public static void verify(Declarations d) {
+	public static void validate(Declarations d) {
 		for (int i = 0; i < d.size() - 1; i++)
 			for (int j = i + 1; j < d.size(); j++) {
 				Declaration di = d.get(i);
@@ -130,11 +130,11 @@ public class StaticTypeCheck {
 	}
 
 	/**
-	 * Verify an expression with a given type map
-	 * @param e Expression to verify
-	 * @param tm Type map to verify with
+	 * validate an expression with a given type map
+	 * @param e Expression to validate
+	 * @param tm Type map to validate with
 	 */
-	public static void verify(Expression e, TypeMap tm) {
+	public static void validate(Expression e, TypeMap tm) {
 		// value, so nothing to check
 		if (e instanceof Value)
 			return;
@@ -153,8 +153,8 @@ public class StaticTypeCheck {
 			Type type1 = typeOf(b.term1(), tm);
 			Type type2 = typeOf(b.term2(), tm);
 			
-			verify(b.term1(), tm);
-			verify(b.term2(), tm);
+			validate(b.term1(), tm);
+			validate(b.term2(), tm);
 			
 			// +, -, *, /
 			// Int -> Int   ->   Int | Float -> Float -> Float |
@@ -197,7 +197,7 @@ public class StaticTypeCheck {
 			
 			Type t = typeOf(u.term, tm);
 			
-			verify(u.term, tm);
+			validate(u.term, tm);
 			
 			// !
 			// Bool -> Bool
@@ -235,11 +235,11 @@ public class StaticTypeCheck {
 	}
 
 	/**
-	 * Verify a statement with a given type map
-	 * @param s Statement to verify
+	 * validate a statement with a given type map
+	 * @param s Statement to validate
 	 * @param tm Type map to use for verification
 	 */
-	public static void verify(Statement s, TypeMap tm) {
+	public static void validate(Statement s, TypeMap tm) {
 		// make sure we're not given a null statement
 		if (s == null)
 			throw new IllegalArgumentException("AST error: null statement");
@@ -255,7 +255,7 @@ public class StaticTypeCheck {
 			// make sure target exists
 			check(tm.containsKey(a.target()), "Target not found in type map! (target: " + a.target() + ")");
 			
-			verify(a.source(), tm);
+			validate(a.source(), tm);
 			
 			Type targettype = (Type) tm.get(a.target());
 			Type srctype = typeOf(a.source(), tm);
@@ -282,23 +282,23 @@ public class StaticTypeCheck {
 			// check every statement in block
 			Iterator<Statement> members = b.getMembers();
 			while(members.hasNext())
-				verify(members.next(), tm);
+				validate(members.next(), tm);
 			
 		// while loop
 		} else if(s instanceof Loop) {
 			Loop l = (Loop) s;
 			
-			// verify test and body
-			verify(l.test(), tm);
-			verify(l.body(), tm);
+			// validate test and body
+			validate(l.test(), tm);
+			validate(l.body(), tm);
 			
 		// if statement
 		} else if(s instanceof Conditional){
 			Conditional c = (Conditional) s;
 			
-			verify(c.test(), tm);
-			verify(c.thenBranch(), tm);
-			verify(c.elseBranch(), tm);
+			validate(c.test(), tm);
+			validate(c.thenBranch(), tm);
+			validate(c.elseBranch(), tm);
 		} else{
 			throw new IllegalArgumentException("should never reach here " + s);
 		}
