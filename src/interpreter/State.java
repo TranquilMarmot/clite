@@ -1,4 +1,4 @@
-package typing;
+package interpreter;
 import java.util.*;
 
 import syntax.expression.Variable;

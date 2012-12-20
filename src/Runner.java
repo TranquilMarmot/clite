@@ -1,8 +1,8 @@
+import interpreter.Interpreter;
+import interpreter.State;
 import parser.Lexer;
 import parser.Parser;
 import syntax.Program;
-import typing.Interpreter;
-import typing.State;
 import typing.StaticTypeCheck;
 import typing.TypeMap;
 import typing.TypeTransformer;

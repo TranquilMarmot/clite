@@ -1,4 +1,4 @@
-package typing;
+package interpreter;
 import java.util.Iterator;
 
 import syntax.Operator;
@@ -21,6 +21,7 @@ import syntax.value.CharValue;
 import syntax.value.FloatValue;
 import syntax.value.IntValue;
 import syntax.value.Value;
+import typing.StaticTypeCheck;
 
 /**
  * Following is the semantics class:
