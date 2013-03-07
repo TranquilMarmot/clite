@@ -1,4 +1,4 @@
-package clite.function;
+package clite.syntax.function;
 
 import java.util.LinkedHashMap;
 

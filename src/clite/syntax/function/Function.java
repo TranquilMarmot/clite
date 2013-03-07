@@ -1,4 +1,4 @@
-package clite.function;
+package clite.syntax.function;
 
 import clite.syntax.Type;
 import clite.syntax.declaration.Declarations;

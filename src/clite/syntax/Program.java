@@ -2,10 +2,10 @@ package clite.syntax;
 
 import java.util.Iterator;
 
-import clite.function.Function;
-import clite.function.Functions;
 import clite.syntax.declaration.Declaration;
 import clite.syntax.declaration.Declarations;
+import clite.syntax.function.Function;
+import clite.syntax.function.Functions;
 
 
 

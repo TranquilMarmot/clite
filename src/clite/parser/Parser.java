@@ -2,8 +2,6 @@ package clite.parser;
 
 import org.pmw.tinylog.Logger;
 
-import clite.function.Function;
-import clite.function.Functions;
 import clite.syntax.Operator;
 import clite.syntax.Program;
 import clite.syntax.Type;
@@ -13,6 +11,8 @@ import clite.syntax.expression.Binary;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Function;
+import clite.syntax.function.Functions;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
 import clite.syntax.statement.Conditional;
@@ -79,7 +79,7 @@ public class Parser {
 	}
 
 	/**
-	 * Program --> int main ( ) '{' Declarations Statements '}'
+	 * Program --> { Type Identifier FunctionOrGlobal } MainFunction
 	 * @return Program generated from Lexer given to this Parser's constructor
 	 */
 	public Program program() {
@@ -110,6 +110,7 @@ public class Parser {
 		//match(Token.Type.RightBrace);
 		return null;
 	}
+	
 	/**
 	 * Declarations --> { Declaration }
 	 * @return List of declarations
@@ -163,10 +164,14 @@ public class Parser {
 		}
 	}
 	
-	private Function function(Functions functions, Type t, Variable v){
-		//
-		
-		// match '('
+	/**
+	 * Function -> (Parameters) {Declarations Statements}
+	 * @param functions Map function is being added to
+	 * @param t Type of function
+	 * @param v Name of function
+	 * @return 
+	 */
+	private void function(Functions functions, Type t, Variable v){
 		match(Token.Type.LeftParen);
 		Declarations params = parameters();
 		match(Token.Type.RightParen);
@@ -175,18 +180,23 @@ public class Parser {
 		Block body = statements();
 		match(Token.Type.RightBrace);
 		
-		
-		return new Function(t, v.toString(), params, locals, body);
+		functions.put(v.toString(), new Function(t, v.toString(), params, locals, body));
 	}
 	
+	/**
+	 * Parameters -> [Parameter{, Parameter}]
+	 * @return List of parameters for a function
+	 */
 	private Declarations parameters(){
 		Declarations decs = new Declarations();
 		
 		while(currentToken.type() != Token.Type.RightParen){
 			Type t = type();
+			// grab name then skip it
 			Variable v = new Variable(currentToken.value());
 			match(Token.Type.Identifier);
 			
+			// put the declaration into the list
 			decs.put(v.toString(), new Declaration(v, t));
 			
 			// skip comma if it's there and move on to next parameter

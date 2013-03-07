@@ -1,7 +1,6 @@
 package clite.typing;
 import java.util.Iterator;
 
-import clite.function.Functions;
 import clite.syntax.Program;
 import clite.syntax.Type;
 import clite.syntax.declaration.Declaration;
@@ -10,6 +9,7 @@ import clite.syntax.expression.Binary;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Functions;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
 import clite.syntax.statement.Conditional;
