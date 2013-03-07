@@ -7,7 +7,8 @@ public enum Type {
 	INT("int"),
 	BOOL("bool"),
 	CHAR("char"),
-	FLOAT("float");
+	FLOAT("float"),
+	VOID("void");
 
 	/** ID for type */
 	private String id;

@@ -103,6 +103,7 @@ public class Token {
 		kw.put("char", charTok);
 		kw.put("int", intTok);
 		kw.put("float", floatTok);
+		kw.put("void", voidTok);
 		kw.put("if", ifTok);
 		kw.put("else", elseTok);
 		kw.put("true", trueTok);

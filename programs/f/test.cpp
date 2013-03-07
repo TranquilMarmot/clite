@@ -1,5 +1,7 @@
 int h, i;
 
+float f;
+
 void B(int w) {
 	int j, k;
 	i = 2*w;

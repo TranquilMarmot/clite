@@ -1,5 +1,9 @@
 package clite.parser;
-import clite.function.GlobalMap;
+
+import org.pmw.tinylog.Logger;
+
+import clite.function.Function;
+import clite.function.FunctionMap;
 import clite.syntax.Operator;
 import clite.syntax.Program;
 import clite.syntax.Type;
@@ -87,34 +91,36 @@ public class Parser {
 		}
 		*/
 		
-		GlobalMap globalMap = globalMap();
+		Declarations globals = new Declarations();
+		FunctionMap funcs = new FunctionMap();
+		
+		//while(currentToken.type() != Token.Type.Main){
+			//functionOrGlobal(globals, funcs);
+		//}
+			
+			globals.putAll(declarations(funcs));
+		
+		// grab main
+		//Function main = mainFunction();
+		
 		
 		// parse program
-		match(Token.Type.LeftBrace);
-		Program prog = new Program(declarations(), statements());
-		match(Token.Type.RightBrace);
-		return prog;
+		//match(Token.Type.LeftBrace);
+		//Program prog = new Program(declarations(funcs), statements());
+		//match(Token.Type.RightBrace);
+		return null;
 	}
-	
-	private GlobalMap globalMap(){
-		GlobalMap map = new GlobalMap();
-		
-		if(currentToken == Token.)
-		
-		return map;
-	}
-
 	/**
 	 * Declarations --> { Declaration }
 	 * @return List of declarations
 	 */
-	private Declarations declarations() {
+	private Declarations declarations(FunctionMap functions) {
 		// create new list of declarations (each function should have one)
 		Declarations ds = new Declarations();
 		
 		// declarations go until there's no more types
 		while(isType())
-			declaration(ds);
+			declaration(ds, functions);
 		
 		return ds;
 	}
@@ -123,29 +129,72 @@ public class Parser {
 	 * Declaration --> Type Identifier { , Identifier } ;
 	 * @param ds Declarations list to add declaration to
 	 */
-	private void declaration(Declarations ds) {
+	private void declaration(Declarations ds, FunctionMap functions) {
 		// grab the Type
 		Type type = type();
 		
-		do{
+		while(currentToken.type() != Token.Type.Main){
 			// grab variable name from current token
 			Variable v = new Variable(currentToken.value());
-			ds.add(new Declaration(v, type));
-			
 			// skip identifier
 			match(Token.Type.Identifier);
 			
-			// if we're at the end of the line, we're done
-			if(currentToken.type() == Token.Type.Semicolon)
+			if(currentToken.type() == Token.Type.LeftParen){
+				function(functions, type, v);
+				if(isType())
+					type = type();
+				else
+					break;
+			} else if(currentToken.type() == Token.Type.Main)
 				break;
-			// currentToken will be a comma if there's more declarations of this type, skip comma
-			else
-				match(Token.Type.Comma);
-		// keep going until there's no more commas
-		} while(currentToken.type() != Token.Type.Semicolon);
+			else{
+				ds.put(v.toString(), new Declaration(v, type));
+				// currentToken will be a comma if there's more declarations of this type, skip comma
+				if(currentToken.type() == Token.Type.Comma){
+					match(Token.Type.Comma);
+				}else if(currentToken.type() == Token.Type.Semicolon){
+					match(Token.Type.Semicolon);
+					if(isType())
+						type = type();
+					else
+						break;
+				}
+			}
+		}
+	}
+	
+	private Function function(FunctionMap functions, Type t, Variable v){
+		//Function f = new Function();
 		
-		// skip ;
-		match(Token.Type.Semicolon);
+		// match '('
+		match(Token.Type.LeftParen);
+		Declarations params = parameters();
+		match(Token.Type.RightParen);
+		match(Token.Type.LeftBrace);
+		Declarations locals = declarations(functions);
+		Block body = statements();
+		match(Token.Type.RightBrace);
+		
+		
+		return new Function(t, v.toString(), params, locals, body);
+	}
+	
+	private Declarations parameters(){
+		Declarations decs = new Declarations();
+		
+		while(currentToken.type() != Token.Type.RightParen){
+			Type t = type();
+			Variable v = new Variable(currentToken.value());
+			match(Token.Type.Identifier);
+			
+			decs.put(v.toString(), new Declaration(v, t));
+			
+			// skip comma if it's there and move on to next parameter
+			if(currentToken.type() == Token.Type.Comma)
+				match(Token.Type.Comma);
+		}
+		
+		return decs;
 	}
 
 	/**
@@ -164,6 +213,8 @@ public class Parser {
 			t = Type.FLOAT;
 		else if(currentToken.type() == Token.Type.Char)
 			t = Type.CHAR;
+		else if(currentToken.type() == Token.Type.Void)
+			t = Type.VOID;
 		else
 			error("Current token not type (current token: " + currentToken + ")");
 		
@@ -511,7 +562,8 @@ public class Parser {
 		return currentToken.type() == Token.Type.Int
 			|| currentToken.type() == Token.Type.Bool
 			|| currentToken.type() == Token.Type.Float
-			|| currentToken.type() == Token.Type.Char;
+			|| currentToken.type() == Token.Type.Char
+			|| currentToken.type() == Token.Type.Void;
 	}
 
 	/**

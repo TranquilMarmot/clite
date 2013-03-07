@@ -2,12 +2,18 @@ Nate Moore
 
 CLite Java Parser
 
-To run, do 'java Runner ../programs/[program name]'. It should work with all the test programs.
+There are four folders:
+	src - All source files
+	bin - Compiled class files
+	doc - Generated javadocs (open Index.html to view)
+	programs - Test programs to run with interpreter
 
-I managed to complete pretty much all the parts that were labeled "student exercise" in the code, which I'm pretty sure covers all the labs (I didn't follow the labs, just "played it by ear").
-Overall, this was almost trivial for me. I've implemented a lot of stuff similar to this before for various projects.
+To run, do 'java Runner ../programs/[program name]'. It should work with all the test programs. I removed all the main methods from everything except the runner, but I suppose I could add them back if you wanted to test each part individually.
 
-I kind of tore up the source code that the book gave me. I created four packages- syntax, parser, typing, and interpreter- to further distinguish the different parts from each other. I also added a TON of comments and full javadocs.
+I managed to complete all the parts that were labeled "student exercise" in the code (and then some), which I'm pretty sure covers all the labs (I didn't follow the labs, just "played it by ear").
+Overall, this whole thing was almost trivial for me; I've implemented a lot of stuff similar to this before for various projects.
+
+I kind of tore up the source code that the book gave me. I created four packages- syntax, parser, typing, and interpreter- to further distinguish the different parts of the program from each other. I also added a TON of comments and full javadocs.
 
 Inside of the 'syntax' package is the abstract syntax. I split the abstract syntax up into multiple classes inside of a few seperate subpackages, rather than having them all crammed into one file like they had it (the abstract syntax didn't make much sense to me until I did this, then it became immediately clear).
 

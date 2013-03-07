@@ -1,6 +1,6 @@
 package clite.syntax.declaration;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * Declarations = Declaration*
@@ -9,4 +9,4 @@ import java.util.ArrayList;
  * Basically, a renamed ArrayList<Declaration>
  */
 @SuppressWarnings("serial")
-public class Declarations extends ArrayList<Declaration> {}
+public class Declarations extends LinkedHashMap<String, Declaration> {}
