@@ -1,4 +1,5 @@
 package clite.parser;
+import clite.function.GlobalMap;
 import clite.syntax.Operator;
 import clite.syntax.Program;
 import clite.syntax.Type;
@@ -86,11 +87,21 @@ public class Parser {
 		}
 		*/
 		
+		GlobalMap globalMap = globalMap();
+		
 		// parse program
 		match(Token.Type.LeftBrace);
 		Program prog = new Program(declarations(), statements());
 		match(Token.Type.RightBrace);
 		return prog;
+	}
+	
+	private GlobalMap globalMap(){
+		GlobalMap map = new GlobalMap();
+		
+		if(currentToken == Token.)
+		
+		return map;
 	}
 
 	/**
@@ -98,7 +109,7 @@ public class Parser {
 	 * @return List of declarations
 	 */
 	private Declarations declarations() {
-		// create new list of declarations (each program should have one)
+		// create new list of declarations (each function should have one)
 		Declarations ds = new Declarations();
 		
 		// declarations go until there's no more types

@@ -11,9 +11,11 @@ public class Token {
 	 */
 	public enum Type {
 		Main, Eof,
+		Return,
 		
 		Int, Float, Char,
-		Bool, True, False, 
+		Bool, True, False,
+		Void,
 		
 		Plus, Minus,
 		Multiply, Divide,
@@ -42,10 +44,12 @@ public class Token {
 	public static final Token
 		mainTok         = new Token(Type.Main, "main"),
 		eofTok          = new Token(Type.Eof, "<<EOF>>"),
+		returnTok       = new Token(Type.Return, "return"),
 		
 		intTok          = new Token(Type.Int, "int"),
 		floatTok        = new Token(Type.Float, "float"),
 		charTok         = new Token(Type.Char, "char"),
+		voidTok         = new Token(Type.Void, "void"),
 		
 		boolTok         = new Token(Type.Bool, "bool"),
 		ifTok           = new Token(Type.If, "if"),
