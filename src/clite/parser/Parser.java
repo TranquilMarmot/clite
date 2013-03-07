@@ -3,7 +3,7 @@ package clite.parser;
 import org.pmw.tinylog.Logger;
 
 import clite.function.Function;
-import clite.function.FunctionMap;
+import clite.function.Functions;
 import clite.syntax.Operator;
 import clite.syntax.Program;
 import clite.syntax.Type;
@@ -92,7 +92,7 @@ public class Parser {
 		*/
 		
 		Declarations globals = new Declarations();
-		FunctionMap funcs = new FunctionMap();
+		Functions funcs = new Functions();
 		
 		//while(currentToken.type() != Token.Type.Main){
 			//functionOrGlobal(globals, funcs);
@@ -114,7 +114,7 @@ public class Parser {
 	 * Declarations --> { Declaration }
 	 * @return List of declarations
 	 */
-	private Declarations declarations(FunctionMap functions) {
+	private Declarations declarations(Functions functions) {
 		// create new list of declarations (each function should have one)
 		Declarations ds = new Declarations();
 		
@@ -129,7 +129,7 @@ public class Parser {
 	 * Declaration --> Type Identifier { , Identifier } ;
 	 * @param ds Declarations list to add declaration to
 	 */
-	private void declaration(Declarations ds, FunctionMap functions) {
+	private void declaration(Declarations ds, Functions functions) {
 		// grab the Type
 		Type type = type();
 		
@@ -163,8 +163,8 @@ public class Parser {
 		}
 	}
 	
-	private Function function(FunctionMap functions, Type t, Variable v){
-		//Function f = new Function();
+	private Function function(Functions functions, Type t, Variable v){
+		//
 		
 		// match '('
 		match(Token.Type.LeftParen);

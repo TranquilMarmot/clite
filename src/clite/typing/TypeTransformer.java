@@ -27,7 +27,7 @@ public class TypeTransformer {
 	 */
 	public static Program transform(Program p, TypeMap tm) {
 		Block body = (Block) transform(p.body(), tm);
-		return new Program(p.declarations(), body);
+		return new Program(p.globals(), body);
 	}
 
 	/**

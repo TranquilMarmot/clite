@@ -240,7 +240,7 @@ public class Interpreter {
 		State state = new State();
 		
 		// allocate space for each variable in the declarations
-		for (Declaration decl : d)
+		for (Declaration decl : d.values())
 			state.put(decl.variable(), Value.mkValue(decl.type()));
 		
 		return state;
@@ -252,7 +252,9 @@ public class Interpreter {
 	 * @return Final state of program
 	 */
 	public static State interpret(Program p) {
-		return interpret(p.body(), initialState(p.declarations()));
+		// TODO call main function here?
+		//return interpret(p.body(), initialState(p.globals()));
+		return null;
 	}
 
 	/**

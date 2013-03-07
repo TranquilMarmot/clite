@@ -1,6 +1,7 @@
 package clite.typing;
 import java.util.Iterator;
 
+import clite.function.Functions;
 import clite.syntax.Program;
 import clite.syntax.Type;
 import clite.syntax.declaration.Declaration;
@@ -31,7 +32,7 @@ public class StaticTypeCheck {
 	 */
 	public static TypeMap typing(Declarations d) {
 		TypeMap map = new TypeMap();
-		for (Declaration di : d)
+		for (Declaration di : d.values())
 			map.put(di.variable(), di.type());
 		return map;
 	}
@@ -113,8 +114,12 @@ public class StaticTypeCheck {
 	 * @param p Program to validate
 	 */
 	public static void validate(Program p) {
-		validate(p.declarations());
-		validate(p.body(), typing(p.declarations()));
+		validate(p.globals());
+		//validate(p.functions(), typing(p.globals())); TODO
+	}
+	
+	public static void validate(Functions functions, TypeMap tm){
+		// TODO
 	}
 
 	/**

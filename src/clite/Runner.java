@@ -32,7 +32,7 @@ public class Runner {
 		System.out.println("\n-------------------------------");
 		
 		System.out.println("\nType map after static type check:");
-		TypeMap map = StaticTypeCheck.typing(prog.declarations());
+		TypeMap map = StaticTypeCheck.typing(prog.globals());
 		map.display();
 		
 		StaticTypeCheck.validate(prog);
