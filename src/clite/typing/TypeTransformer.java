@@ -7,6 +7,8 @@ import clite.syntax.Type;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Function;
+import clite.syntax.function.Return;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
 import clite.syntax.statement.Conditional;
@@ -106,6 +108,15 @@ public class TypeTransformer {
 			
 			return out;
 		}
+		
+		if(s instanceof Function){
+			// TODO
+		}
+		
+		if(s instanceof Return){
+			// TODO
+		}
+		
 		throw new IllegalArgumentException("should never reach here");
 	}
 }

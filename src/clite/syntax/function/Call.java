@@ -17,6 +17,10 @@ public class Call extends Statement {
 	/** Arguments to pass to function */
 	private Stack<Expression> arguments;
 	
+	/**
+	 * @param id Name of function being called
+	 * @param arguments Arguments to call function with
+	 */
 	public Call(Variable id, Stack<Expression> arguments){
 		this.identifier = id;
 		this.arguments = arguments;
@@ -32,7 +36,11 @@ public class Call extends Statement {
 	@Override
 	public void display(int indent) {
 		for(int i = 0; i < indent; i++)
-			System.out.println('\t');
-		System.out.println("(Call)");
+			System.out.print("   ");
+		String call = identifier.toString() + "(";
+		for(Expression e : arguments)
+			call += e.toString();
+		call += ")";
+		System.out.println("Call " + call);
 	}
 }

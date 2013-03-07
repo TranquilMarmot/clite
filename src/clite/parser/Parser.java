@@ -85,32 +85,10 @@ public class Parser {
 	 * @return Program generated from Lexer given to this Parser's constructor
 	 */
 	public Program program() {
-		// bypass "int main ( )"
-		/*
-		Token.Type[] header = { Token.Type.Int, Token.Type.Main, Token.Type.LeftParen, Token.Type.RightParen };
-		for (int i = 0; i < header.length; i++){
-			match(header[i]);
-		}
-		*/
-		
 		Declarations globals = new Declarations();
 		Functions funcs = new Functions();
-		
-		//while(currentToken.type() != Token.Type.Main){
-			//functionOrGlobal(globals, funcs);
-		//}
-			
-			globals.putAll(declarations(funcs));
-		
-		// grab main
-		//Function main = mainFunction();
-		
-		
-		// parse program
-		//match(Token.Type.LeftBrace);
-		//Program prog = new Program(declarations(funcs), statements());
-		//match(Token.Type.RightBrace);
-		return null;
+		globals.putAll(declarations(funcs));
+		return new Program(globals, funcs);
 	}
 	
 	/**
@@ -136,7 +114,7 @@ public class Parser {
 		// grab the Type
 		Type type = type();
 		
-		while(currentToken.type() != Token.Type.Main){
+		while(currentToken.type() != Token.Type.Eof){
 			// grab variable name from current token
 			Variable v = new Variable(currentToken.value());
 			// skip identifier
@@ -148,8 +126,8 @@ public class Parser {
 					type = type();
 				else
 					break;
-			} else if(currentToken.type() == Token.Type.Main)
-				break;
+			} /*else if(currentToken.type() == Token.Type.Main)
+				break;*/
 			else{
 				ds.put(v.toString(), new Declaration(v, type));
 				// currentToken will be a comma if there's more declarations of this type, skip comma
@@ -285,8 +263,11 @@ public class Parser {
 		match(Token.Type.LeftParen);
 		
 		Stack<Expression> args = new Stack<Expression>();
-		while(!(currentToken.type() == Token.Type.RightParen))
+		while(!(currentToken.type() == Token.Type.RightParen)){
 			args.push(expression());
+			if(currentToken.type() == Token.Type.Comma)
+				match(Token.Type.Comma);
+		}
 		
 		match(Token.Type.RightParen);
 		match(Token.Type.Semicolon);

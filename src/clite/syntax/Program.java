@@ -37,7 +37,7 @@ public class Program {
 	 */
 	public void display() {
 		//System.out.println("--- Abstract Syntax ---");
-		System.out.println("Declarations:");
+		System.out.println("Globals:");
 		for(Declaration d : globals.values())
 			System.out.println("\t" + d.variable() + " :: " + d.type());
 		

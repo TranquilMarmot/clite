@@ -3,11 +3,12 @@ package clite.syntax.function;
 import clite.syntax.Type;
 import clite.syntax.declaration.Declarations;
 import clite.syntax.statement.Block;
+import clite.syntax.statement.Statement;
 
 /**
  * Function = Type t; String id; Declarations params, locals; Block body
  */
-public class Function {
+public class Function extends Statement {
 	/** Return type of function */
 	private Type type;
 	/** Name of function */
@@ -44,9 +45,23 @@ public class Function {
 	/** @return Body of statements */
 	public Block body(){ return body;}
 
-	public void display(int i) {
-		// TODO
-		System.out.println("TODO display function");
-		
+	public void display(int indent) {
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println(id + " :: " + type);
+		indent++;
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("Parameters:");
+		params.display(indent + 1);
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("Locals:");
+		locals.display(indent + 1);
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("Body:");
+		body.display(indent);
+		System.out.println();
 	} 
 }

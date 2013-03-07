@@ -10,7 +10,7 @@ public class Token {
 	 * Possible token types
 	 */
 	public enum Type {
-		Main, Eof,
+		Eof,
 		Return,
 		
 		Int, Float, Char,
@@ -42,7 +42,6 @@ public class Token {
 	
 	/** List of all possible tokens */
 	public static final Token
-		mainTok         = new Token(Type.Main, "main"),
 		eofTok          = new Token(Type.Eof, "<<EOF>>"),
 		returnTok       = new Token(Type.Return, "return"),
 		
@@ -97,7 +96,6 @@ public class Token {
 	private static HashMap<String, Token> getKeywordsMap(){
 		HashMap<String, Token> kw = new HashMap<String, Token>();
 		
-		kw.put("main", mainTok);
 		kw.put("bool", boolTok);
 		kw.put("boolean", boolTok);
 		kw.put("char", charTok);
