@@ -1,6 +1,6 @@
 package clite.parser;
 
-import org.pmw.tinylog.Logger;
+import java.util.Stack;
 
 import clite.syntax.Operator;
 import clite.syntax.Program;
@@ -11,8 +11,10 @@ import clite.syntax.expression.Binary;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Call;
 import clite.syntax.function.Function;
 import clite.syntax.function.Functions;
+import clite.syntax.function.Return;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
 import clite.syntax.statement.Conditional;
@@ -208,7 +210,7 @@ public class Parser {
 	}
 
 	/**
-	 * Type --> int | bool | float | char
+	 * Type --> int | bool | float | char | void
 	 * Also moves on to next token
 	 * @return Type of current token
 	 */
@@ -233,7 +235,7 @@ public class Parser {
 	}
 
 	/**
-	 * Statement --> ; | Block | Assignment | IfStatement | WhileStatement
+	 * Statement --> ; | Block | Assignment | IfStatement | WhileStatement | CallStatement | ReturnStatement
 	 */
 	private Statement statement() {
 		// skip any semicolons
@@ -249,21 +251,59 @@ public class Parser {
 			return whileStatement();
 		
 		// identifier means assignment
-		else if(currentToken.type() == Token.Type.Identifier)
-			return assignment();
+		else if(currentToken.type() == Token.Type.Identifier){
+			Variable name = new Variable(currentToken.value());
+			match(Token.Type.Identifier);
+			
+			if(currentToken.type() == Token.Type.Assign)
+				return assignment(name);
+			else if(currentToken.type() == Token.Type.LeftParen)
+				return callStatement(name);
 		
 		// left brace indicates start of block
-		else if(currentToken.type() == Token.Type.LeftBrace){
+		} else if(currentToken.type() == Token.Type.LeftBrace){
 			match(Token.Type.LeftBrace);
 			Block bl = statements();
 			match(Token.Type.RightBrace);
 			return bl;
-			
+		
+		} else if(currentToken.type() == Token.Type.Return){
+			returnStatement();
 		// unkown statement type
 		} else
 			error("Unknown statement type: " + currentToken.value());
 		
 		return null;
+	}
+	
+	/**
+	 * CallStatement -> Call;
+	 * @param id Name of function being called
+	 * @return Call expression
+	 */
+	private Call callStatement(Variable id){
+		match(Token.Type.LeftParen);
+		
+		Stack<Expression> args = new Stack<Expression>();
+		while(!(currentToken.type() == Token.Type.RightParen))
+			args.push(expression());
+		
+		match(Token.Type.RightParen);
+		match(Token.Type.Semicolon);
+		
+		return new Call(id, args);
+	}
+	
+	/**
+	 * ReturnStatement -> return Expression; 
+	 * @return Return expression
+	 */
+	private Return returnStatement(){
+		match(Token.Type.Return);
+		
+		Expression ret = expression();
+		
+		return new Return(ret);
 	}
 
 	/**
@@ -283,12 +323,7 @@ public class Parser {
 	/**
 	 * Assignment --> Identifier = Expression ;
 	 */
-	private Assignment assignment() {
-		// get identifier for what's being assigned
-		Variable target = new Variable(currentToken.value());
-		
-		match(currentToken.type());
-		
+	private Assignment assignment(Variable id) {
 		// match =
 		match(Token.Type.Assign);
 		
@@ -297,7 +332,7 @@ public class Parser {
 		
 		// match semicolon to complete statement
 		match(Token.Type.Semicolon);
-		return new Assignment(target, source);
+		return new Assignment(id, source);
 	}
 
 	/**
