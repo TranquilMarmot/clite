@@ -107,6 +107,7 @@ public class Token {
 		kw.put("true", trueTok);
 		kw.put("false", falseTok);
 		kw.put("while", whileTok);
+		kw.put("return", returnTok);
 		
 		return kw;
 	}

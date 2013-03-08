@@ -6,7 +6,7 @@ import clite.syntax.expression.Expression;
 /**
  * While Loop = Expression test; Statement body
  */
-public class Loop extends Statement {
+public class Loop implements Statement {
 	/** Test for loop */
 	private Expression test;
 	/** Body of loop */

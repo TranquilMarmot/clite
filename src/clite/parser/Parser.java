@@ -37,6 +37,9 @@ public class Parser {
 	/**  Current token from the input stream */
 	private Token currentToken;
 	
+	/** Name of current function being parsed*/
+	private Variable currentFunction;
+	
 	/** Lexer that provides token */
 	private Lexer lexer;
 	
@@ -129,7 +132,13 @@ public class Parser {
 			} /*else if(currentToken.type() == Token.Type.Main)
 				break;*/
 			else{
-				ds.put(v.toString(), new Declaration(v, type));
+				Declaration dec = ds.put(v.toString(), new Declaration(v, type));
+				if(dec != null){
+					System.err.println("Error in parser!");
+					System.err.println("Line: " + lexer.lineNumber() + " Col: " + lexer.columnNumber());
+					System.err.println("Declaration already exists: " + v.toString());
+					System.exit(1);
+				}
 				// currentToken will be a comma if there's more declarations of this type, skip comma
 				if(currentToken.type() == Token.Type.Comma){
 					match(Token.Type.Comma);
@@ -152,21 +161,30 @@ public class Parser {
 	 * @return 
 	 */
 	private void function(Functions functions, Type t, Variable v){
+		currentFunction = v;
 		match(Token.Type.LeftParen);
 		Declarations params = parameters();
 		match(Token.Type.RightParen);
 		match(Token.Type.LeftBrace);
 		Declarations locals = declarations(functions);
 		Block body = statements();
+		
+		// FIXME
+		if(t != Type.VOID){
+			if(currentToken.type() == Token.Type.Return){
+				returnStatement(v);
+			}
+		}
+		
 		match(Token.Type.RightBrace);
 		
-		if(functions.containsKey(v.toString())){
+		Function f = functions.put(v.toString(), new Function(t, v.toString(), params, locals, body));
+		if(f != null){
 			System.err.println("Error in parser!");
 			System.err.println("Line: " + lexer.lineNumber() + " Col: " + lexer.columnNumber());
 			System.err.println("Function already defined: " + v.toString());
 			System.exit(1);
 		}
-		functions.put(v.toString(), new Function(t, v.toString(), params, locals, body));
 	}
 	
 	/**
@@ -241,8 +259,11 @@ public class Parser {
 			
 			if(currentToken.type() == Token.Type.Assign)
 				return assignment(name);
-			else if(currentToken.type() == Token.Type.LeftParen)
-				return callStatement(name);
+			else if(currentToken.type() == Token.Type.LeftParen){
+				Call c = callStatement(name);
+				match(Token.Type.Semicolon);
+				return c;
+			}
 		
 		// left brace indicates start of block
 		} else if(currentToken.type() == Token.Type.LeftBrace){
@@ -251,8 +272,10 @@ public class Parser {
 			match(Token.Type.RightBrace);
 			return bl;
 		
+			
 		} else if(currentToken.type() == Token.Type.Return){
-			returnStatement();
+			return returnStatement(currentFunction);
+			
 		// unkown statement type
 		} else
 			error("Unknown statement type: " + currentToken.value());
@@ -276,7 +299,6 @@ public class Parser {
 		}
 		
 		match(Token.Type.RightParen);
-		match(Token.Type.Semicolon);
 		
 		return new Call(id, args);
 	}
@@ -285,12 +307,14 @@ public class Parser {
 	 * ReturnStatement -> return Expression; 
 	 * @return Return expression
 	 */
-	private Return returnStatement(){
+	private Return returnStatement(Variable functionName){
 		match(Token.Type.Return);
 		
 		Expression ret = expression();
 		
-		return new Return(ret);
+		match(Token.Type.Semicolon);
+		
+		return new Return(functionName, ret);
 	}
 
 	/**
@@ -361,7 +385,7 @@ public class Parser {
 	}
 
 	/**
-	 * Expression --> Conjunction { || Conjunction }
+	 * Expression --> Conjunction { || Conjunction } | Call
 	 */
 	private Expression expression() {
 		Expression e = conjunction();
@@ -479,15 +503,22 @@ public class Parser {
 	}
 
 	/**
-	 * Primary --> Identifier | Literal | ( Expression ) | Type ( Expression )
+	 * Primary --> Identifier | Literal | ( Expression ) | Type ( Expression ) | Identifier(Arguments)
 	 */
 	private Expression primary() {
 		Expression e = null;
 		
-		// variable
+		// variable or function call
 		if (currentToken.type() == Token.Type.Identifier) {
-			e = new Variable(currentToken.value());
+			Variable v = new Variable(currentToken.value());
 			match(Token.Type.Identifier);
+			
+			// function call
+			if(currentToken.type() == Token.Type.LeftParen)
+				e = callStatement(v);
+			// variable
+			else
+				e = v;
 			
 		// literal
 		} else if (isLiteral()) {

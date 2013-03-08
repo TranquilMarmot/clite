@@ -10,7 +10,7 @@ import clite.syntax.statement.Statement;
 /**
  * Call = String name; Expressions args
  */
-public class Call extends Statement {
+public class Call implements Statement, Expression {
 	/** Function being called */
 	private Variable identifier;
 	
@@ -41,6 +41,6 @@ public class Call extends Statement {
 		for(Expression e : arguments)
 			call += e.toString();
 		call += ")";
-		System.out.println("Call " + call);
+		System.out.println("| call " + call);
 	}
 }

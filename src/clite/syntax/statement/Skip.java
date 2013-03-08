@@ -5,7 +5,7 @@ package clite.syntax.statement;
 /**
  * A statement that skips
  */
-public class Skip extends Statement {
+public class Skip implements Statement {
 	@Override
 	public void display(int indent){
 		for(int i = 0; i < indent; i++)

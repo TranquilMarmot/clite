@@ -7,7 +7,7 @@ import java.util.Stack;
 /**
  * Block = Statement* (a Vector of members)
  */
-public class Block extends Statement {
+public class Block implements Statement {
 	/** List of all members */
 	private Stack<Statement> members;
 	

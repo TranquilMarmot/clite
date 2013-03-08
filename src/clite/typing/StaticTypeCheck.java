@@ -58,10 +58,16 @@ public class StaticTypeCheck {
 	 * @param tm Type map to use to find type
 	 * @return Type of given expression 
 	 */
-	public static Type typeOf(Expression e, TypeMap tm) {
+	public static Type typeOf(Expression e, Functions funcs, TypeMap tm) {
 		// value
 		if (e instanceof Value) {
 			return ((Value) e).type();
+			
+		// function call
+		} else if(e instanceof Call) {
+			Call c = (Call) e;
+			Function f = funcs.get(c.identifier().toString());
+			return f.type();
 			
 		// variable
 		} else if (e instanceof Variable) {
@@ -74,7 +80,7 @@ public class StaticTypeCheck {
 			Binary b = (Binary)e;
 			// +, -, *, /
 			if (b.operator().isArithmeticOp()){
-				if(typeOf(b.term1(), tm) == Type.INT && typeOf(b.term1(), tm) == Type.INT)
+				if(typeOf(b.term1(), funcs, tm) == Type.INT && typeOf(b.term1(), funcs, tm) == Type.INT)
 					return Type.INT;
 				else
 					return Type.FLOAT;
@@ -95,7 +101,7 @@ public class StaticTypeCheck {
 				return Type.BOOL;
 			// -
 			else if (u.operator().isNegateOp())
-				return typeOf(u.term, tm);
+				return typeOf(u.term, funcs, tm);
 			
 			// int cast
 			else if (u.operator().isIntOp())
@@ -117,44 +123,108 @@ public class StaticTypeCheck {
 	 * @param p Program to validate
 	 */
 	public static void validate(Program p) {
-		validate(p.globals());
+		check(p.functions().containsKey("main"), "Error! Main function not found!");
 		validate(p.functions(), typing(p.globals()));
 	}
 	
 	/**
 	 * Validates functions 
 	 * @param functions Functions to validate
-	 * @param globals TypeMap of global variables
+	 * @param tm TypeMap of global variables
 	 */
-	public static void validate(Functions functions, TypeMap globals){
-		for(Function f : functions.values()){
-			validate(f.params());
-			validate(f.locals());
+	public static void validate(Functions functions, TypeMap tm){
+		for(Function func : functions.values()){
+			// add the function's parameters and local variables to the type map
+			TypeMap newMap = new TypeMap();
+			newMap.putAll(tm);
+			newMap.putAll(typing(func.params()));
+			newMap.putAll(typing(func.locals()));
+			validate(func.body(), func, functions, newMap);
 		}
 	}
-
+	
 	/**
-	 * validate a declaration's types
-	 * @param d Declarations to validate
+	 * Validates a block of statements, checking for return and function calls
+	 * @param b Block to validate
+	 * @param func Function that block belongs to, for checking return type
+	 * @param functions Map of all functions
+	 * @param tm Type map to check against
 	 */
-	public static void validate(Declarations d) {
-		for (int i = 0; i < d.size() - 1; i++)
-			for (int j = i + 1; j < d.size(); j++) {
-				Declaration di = d.get(i);
-				Declaration dj = d.get(j);
-				check(!(di.variable().equals(dj.variable())), "Caught duplicate declaration in static type checking for: " + dj.variable());
+	public static void validate(Block b, Function func, Functions functions, TypeMap tm){
+		boolean hasReturn = false;
+		Iterator<Statement> it = b.getMembers();
+		while(it.hasNext()){
+			Statement s = it.next();
+			// special case for return statement
+			if(s instanceof Return){
+				Return r = (Return)s;
+				Type t = typeOf(r.result(), functions, tm);
+				check(t == func.type(), "Return expression doesn't match function's return type! (got a " + t + ", expected a " + func.type() + ")");
+				hasReturn = true;
+				
+			// special case for call statement
+			} else if(s instanceof Call){
+				validate((Call) s, functions, tm);
+				
+			// else parse like regular statement (before all this function nonsense)
+			} else { 
+				validate(s, functions, tm);
 			}
+		}
+		
+		// make sure non-void functions have return types
+		if(func.type() != Type.VOID && !func.id().equals("main")) // ignore main (we cool like dat)
+			check(hasReturn, "Non-void function " + func.id() + " missing return statement!");
+		
+		// make sure void functions DON'T have return types
+		else if(func.type() == Type.VOID)
+			check(hasReturn, "Void function " + func.id() + " has return statement when it shouldn't!");
+	}
+	
+	/**
+	 * Validates a function call
+	 * @param c Call to validate
+	 * @param funcs Function map
+	 * @param tm Type map
+	 */
+	public static void validate(Call c, Functions funcs, TypeMap tm){
+		// get the function being called
+		Function f = funcs.get(c.identifier().toString());
+		
+		// go through iterator for function's parameters and the calls arguments
+		Iterator<Declaration> funcIt = f.params().values().iterator();
+		Iterator<Expression> callIt = c.arguments();
+		while(funcIt.hasNext()){
+			Declaration dec = funcIt.next();
+			
+			// make sure there's more arguments in the call
+			check(callIt.hasNext(), "Incorrect number of arguments for function call!");
+			Expression exp = callIt.next();
+			
+			// get the type of the expression and check if it's the same as the parameter type
+			Type expType = typeOf(exp, funcs, tm);
+			check(dec.type() == expType, "Wrong type in function call for " + dec.variable() + " (got a " + expType + ", expected a " + dec.type() + ")");
+		}
+		
+		// given too many arguments
+		check(!callIt.hasNext(), "Incorrect number of arguments for function call!");
 	}
 
 	/**
 	 * validate an expression with a given type map
 	 * @param e Expression to validate
+	 * @param funcs Function map to validate with
 	 * @param tm Type map to validate with
 	 */
-	public static void validate(Expression e, TypeMap tm) {
+	public static void validate(Expression e, Functions funcs, TypeMap tm) {
 		// value, so nothing to check
 		if (e instanceof Value)
 			return;
+		
+		if(e instanceof Call){
+			validate((Call)e, funcs, tm);
+			return;
+		}
 		
 		// variable, check if it's declared
 		if (e instanceof Variable) {
@@ -167,11 +237,11 @@ public class StaticTypeCheck {
 		if (e instanceof Binary) {
 			Binary b = (Binary) e;
 			
-			Type type1 = typeOf(b.term1(), tm);
-			Type type2 = typeOf(b.term2(), tm);
+			Type type1 = typeOf(b.term1(), funcs, tm);
+			Type type2 = typeOf(b.term2(), funcs, tm);
 			
-			validate(b.term1(), tm);
-			validate(b.term2(), tm);
+			validate(b.term1(), funcs, tm);
+			validate(b.term2(), funcs, tm);
 			
 			// +, -, *, /
 			// Int -> Int   ->   Int | Float -> Float -> Float |
@@ -212,9 +282,9 @@ public class StaticTypeCheck {
 		else if(e instanceof Unary){
 			Unary u = (Unary) e;
 			
-			Type t = typeOf(u.term, tm);
+			Type t = typeOf(u.term, funcs, tm);
 			
-			validate(u.term, tm);
+			validate(u.term, funcs, tm);
 			
 			// !
 			// Bool -> Bool
@@ -254,9 +324,10 @@ public class StaticTypeCheck {
 	/**
 	 * validate a statement with a given type map
 	 * @param s Statement to validate
+	 * @param funcs Function map to validate with
 	 * @param tm Type map to use for verification
 	 */
-	public static void validate(Statement s, TypeMap tm) {
+	public static void validate(Statement s, Functions funcs, TypeMap tm) {
 		// make sure we're not given a null statement
 		if (s == null)
 			throw new IllegalArgumentException("AST error: null statement");
@@ -272,10 +343,10 @@ public class StaticTypeCheck {
 			// make sure target exists
 			check(tm.containsKey(a.target()), "Target not found in type map! (target: " + a.target() + ")");
 			
-			validate(a.source(), tm);
+			validate(a.source(), funcs, tm);
 			
 			Type targettype = (Type) tm.get(a.target());
-			Type srctype = typeOf(a.source(), tm);
+			Type srctype = typeOf(a.source(), funcs, tm);
 			
 			if (targettype != srctype) {
 				// assigning an int to a float is ok
@@ -299,37 +370,26 @@ public class StaticTypeCheck {
 			// check every statement in block
 			Iterator<Statement> members = b.getMembers();
 			while(members.hasNext())
-				validate(members.next(), tm);
+				validate(members.next(), funcs, tm);
 			
 		// while loop
 		} else if(s instanceof Loop) {
 			Loop l = (Loop) s;
 			
 			// validate test and body
-			validate(l.test(), tm);
-			validate(l.body(), tm);
+			validate(l.test(), funcs, tm);
+			validate(l.body(), funcs, tm);
 			
 		// if statement
 		} else if(s instanceof Conditional){
 			Conditional c = (Conditional) s;
 			
-			validate(c.test(), tm);
-			validate(c.thenBranch(), tm);
-			validate(c.elseBranch(), tm);
-			
-		// function call
-		} else if(s instanceof Call){
-			Call c = (Call) s;
-			
-			//if(!)
-			
-		// return statement
-		} else if(s instanceof Return){
-			
-		}
-		
-		
-		else{
+			validate(c.test(), funcs, tm);
+			validate(c.thenBranch(), funcs, tm);
+			validate(c.elseBranch(), funcs, tm);
+
+		// error!
+		}else{
 			throw new IllegalArgumentException("should never reach here " + s);
 		}
 	}

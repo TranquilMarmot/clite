@@ -8,7 +8,7 @@ import clite.syntax.statement.Statement;
 /**
  * Function = Type t; String id; Declarations params, locals; Block body
  */
-public class Function extends Statement {
+public class Function implements Statement {
 	/** Return type of function */
 	private Type type;
 	/** Name of function */

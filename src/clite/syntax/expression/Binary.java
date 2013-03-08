@@ -6,7 +6,7 @@ import clite.syntax.Operator;
 /**
  * Binary = Expression term1 Operator op Expression term2
  */
-public class Binary extends Expression {
+public class Binary implements Expression {
 	private Operator op;
 	private Expression term1, term2;
 

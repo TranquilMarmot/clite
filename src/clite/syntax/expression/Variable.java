@@ -4,7 +4,7 @@ package clite.syntax.expression;
 /**
  * Variable = String id
  */
-public class Variable extends Expression {
+public class Variable implements Expression {
 	/** ID of variable */
 	private String id;
 

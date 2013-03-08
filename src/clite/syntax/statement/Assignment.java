@@ -6,7 +6,7 @@ import clite.syntax.expression.Variable;
 /**
  * Assignment = Variable target; Expression source
  */
-public class Assignment extends Statement {
+public class Assignment implements Statement {
 	/** Target for assignment */
 	private Variable target;
 	/** What to assign */

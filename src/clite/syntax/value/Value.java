@@ -6,7 +6,7 @@ import clite.syntax.expression.Expression;
 /**
  * Value = IntValue | BoolValue | CharValue | FloatValue
  */
-public abstract class Value extends Expression {
+public abstract class Value implements Expression {
 	/** Type of this value */
 	protected Type type;
 	/** Whether or not this value is defined */

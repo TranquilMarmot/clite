@@ -5,7 +5,7 @@ import clite.syntax.Operator;
 /**
  * Unary = Operator op Expression term
  */
-public class Unary extends Expression {
+public class Unary implements Expression {
 	/** Operator to be applied to term */
 	private Operator op;
 	/** Term to apply operator to */

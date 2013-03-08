@@ -5,7 +5,7 @@ import clite.syntax.expression.Expression;
 /**
  *  Conditional = Expression test; Statement thenbranch, elsebranch
  */
-public class Conditional extends Statement {
+public class Conditional implements Statement {
 	/** Test to be performed */
 	private Expression test;
 	/** Then and Else statements */
