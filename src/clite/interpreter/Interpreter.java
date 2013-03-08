@@ -10,6 +10,10 @@ import clite.syntax.expression.Binary;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Call;
+import clite.syntax.function.Function;
+import clite.syntax.function.Functions;
+import clite.syntax.function.Return;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
 import clite.syntax.statement.Conditional;
@@ -40,10 +44,10 @@ public class Interpreter {
 	 * @return State after applying binary op
 	 * @throws IllegalArgumentException If binary op has illegal types
 	 */
-	public static Value interpretBinary(Binary b, State state) throws IllegalArgumentException {
+	public static Value interpretBinary(Binary b, Functions funcs, State state) throws IllegalArgumentException {
 		Operator op = b.operator();
-		Value v1 = interpret(b.term1(), state);
-		Value v2 = interpret(b.term2(), state);
+		Value v1 = interpret(b.term1(), funcs, state);
+		Value v2 = interpret(b.term2(), funcs, state);
 		
 		//StaticTypeCheck.check(v1.type() == v2.type(), "mismatched types");
 		StaticTypeCheck.check(!v1.undefined() || !v2.undefined(), "reference to undef value in binary op");
@@ -79,7 +83,7 @@ public class Interpreter {
 					v1 = new FloatValue((float)v1.intValue());
 				else if(v2.type() == Type.INT)
 					v2 = new FloatValue((float)v2.intValue());
-				return interpretBinary(new Binary(op, v1, v2), state);
+				return interpretBinary(new Binary(op, v1, v2), funcs, state);
 			} else {
 				throw new IllegalArgumentException("Attemped arithmetic op on a " + v1.type() + " and a " + v2.type() + ", not allowed (v1: " + v1 + " v2: " + v2 + ")");
 			}
@@ -135,7 +139,7 @@ public class Interpreter {
 					v1 = new FloatValue((float)v1.intValue());
 				else if(v2.type() == Type.INT)
 					v2 = new FloatValue((float)v2.intValue());
-				return interpretBinary(new Binary(op, v1, v2), state);
+				return interpretBinary(new Binary(op, v1, v2), funcs, state);
 				
 			// chars
 			} else if(v1.type() == Type.CHAR && v2.type() == Type.CHAR){
@@ -178,9 +182,9 @@ public class Interpreter {
 	 * @return State after applying unary
 	 * @throws IllegalArgumentException If unary has invalid typse
 	 */
-	public static Value interpretUnary(Unary u, State state) throws IllegalArgumentException {
+	public static Value interpretUnary(Unary u, Functions funcs, State state) throws IllegalArgumentException {
 		Operator op = u.operator();
-		Value v = interpret(u.term, state);
+		Value v = interpret(u.term, funcs, state);
 		StaticTypeCheck.check(!v.undefined(), "reference to undef value in unary op");
 		
 		// boolean not
@@ -252,9 +256,8 @@ public class Interpreter {
 	 * @return Final state of program
 	 */
 	public static State interpret(Program p) {
-		// TODO call main function here?
-		//return interpret(p.body(), initialState(p.globals()));
-		return null;
+		Function main = p.functions().get("main");
+		return interpret(main.body(), p.functions(), initialState(p.globals()));
 	}
 
 	/**
@@ -263,18 +266,41 @@ public class Interpreter {
 	 * @param state State up to this point
 	 * @return State after interpreting statement
 	 */
-	public static State interpret(Statement s, State state) {
+	public static State interpret(Statement s, Functions funcs, State state) {
 		if (s instanceof Skip)
 			return state;
 		if (s instanceof Assignment)
-			return interpret((Assignment) s, state);
+			return interpret((Assignment) s, funcs, state);
 		if (s instanceof Conditional)
-			return interpret((Conditional) s, state);
+			return interpret((Conditional) s, funcs, state);
 		if (s instanceof Loop)
-			return interpret((Loop) s, state);
+			return interpret((Loop) s, funcs, state);
 		if (s instanceof Block)
-			return interpret((Block) s, state);
+			return interpret((Block) s, funcs, state);
+		if(s instanceof Call)
+			return interpretCallStatement((Call)s, funcs, state);
+		if(s instanceof Return)
+			return state; // FIXME is this right?
 		throw new IllegalArgumentException("should never reach here");
+	}
+	
+	public static State interpretCallStatement(Call s, Functions funcs, State state){
+		Function f = funcs.get(s.identifier().toString());
+		
+		// add locals and parameters to the state
+		for (Declaration decl : f.locals().values())
+			state.put(decl.variable(), Value.mkValue(decl.type()));
+		for (Declaration decl : f.params().values())
+			state.put(decl.variable(), Value.mkValue(decl.type()));
+		
+		State after = interpret(f.body(), funcs, state);
+		
+		for (Declaration decl : f.locals().values())
+			state.put(decl.variable(), Value.mkValue(decl.type()));
+		for (Declaration decl : f.params().values())
+			state.put(decl.variable(), Value.mkValue(decl.type()));
+		
+		return after;
 	}
 
 	/**
@@ -283,8 +309,8 @@ public class Interpreter {
 	 * @param state State up to this point
 	 * @return State after interpreting assignment
 	 */
-	public static State interpret(Assignment a, State state) {
-		return state.onion(a.target(), interpret(a.source(), state));
+	public static State interpret(Assignment a, Functions funcs, State state) {
+		return state.onion(a.target(), interpret(a.source(), funcs, state));
 	}
 
 	/**
@@ -293,10 +319,10 @@ public class Interpreter {
 	 * @param state State up to this point
 	 * @return State after interpreting block
 	 */
-	public static State interpret(Block b, State state) {
+	public static State interpret(Block b, Functions funcs, State state) {
 		Iterator<Statement> members = b.getMembers();
-		while(members.hasNext())
-			state = interpret(members.next(), state);
+		while(members.hasNext()) 
+			state = interpret(members.next(), funcs, state);
 		
 		return state;
 	}
@@ -307,11 +333,11 @@ public class Interpreter {
 	 * @param state State up to this point
 	 * @return State after interpreting conditional
 	 */
-	public static State interpret(Conditional c, State state) {
-		if (interpret(c.test(), state).boolValue())
-			return interpret(c.thenBranch(), state);
+	public static State interpret(Conditional c, Functions funcs, State state) {
+		if (interpret(c.test(), funcs, state).boolValue())
+			return interpret(c.thenBranch(), funcs, state);
 		else
-			return interpret(c.elseBranch(), state);
+			return interpret(c.elseBranch(), funcs, state);
 	}
 
 	/**
@@ -320,11 +346,41 @@ public class Interpreter {
 	 * @param state State up to this point
 	 * @return State after interpreting loop
 	 */
-	public static State interpret(Loop l, State state) {
-		if (interpret(l.test(), state).boolValue())
-			return interpret(l, interpret(l.body(), state));
+	public static State interpret(Loop l, Functions funcs, State state) {
+		if (interpret(l.test(), funcs, state).boolValue())
+			return interpret(l, funcs, interpret(l.body(), funcs, state));
 		else
 			return state;
+	}
+	
+	public static Value interpretCallExpression(Call c, Functions funcs, State state){
+		Function f = funcs.get(c.identifier().toString());
+		
+		// add locals and parameters to the state
+		for (Declaration decl : f.locals().values())
+			state.put(decl.variable(), Value.mkValue(decl.type()));
+		for (Declaration decl : f.params().values())
+			state.put(decl.variable(), Value.mkValue(decl.type()));
+		
+		Iterator<Statement> members = f.body().getMembers();
+		while(members.hasNext()){
+			Statement s = members.next();
+			if(s instanceof Return){
+				Value v =  interpret(((Return)s).result(), funcs, state);
+				
+				// remove locals and parameters from the state
+				for (Declaration decl : f.locals().values())
+					state.remove(decl.variable());
+				for (Declaration decl : f.params().values())
+					state.remove(decl.variable());
+				
+				return v;
+			} else {
+				state = interpret(members.next(), funcs, state);
+			}
+		}
+		
+		return null;
 	}
 
 	/**
@@ -333,19 +389,28 @@ public class Interpreter {
 	 * @param state State up to this point
 	 * @return State after interpreting expression
 	 */
-	public static Value interpret(Expression e, State state) {
+	public static Value interpret(Expression e, Functions funcs, State state) {
 		if (e instanceof Value)
 			return (Value) e;
 		if (e instanceof Variable)
 			return (Value) (state.get(e));
 		if (e instanceof Binary) {
 			Binary b = (Binary) e;
-			return interpretBinary(b, state);
+			return interpretBinary(b, funcs, state);
 		}
 		if (e instanceof Unary) {
 			Unary u = (Unary) e;
-			return interpretUnary(u, state);
+			return interpretUnary(u, funcs, state);
 		}
+		if(e instanceof Function){
+			throw new IllegalArgumentException("should never reach here");
+		}
+		if(e instanceof Call){
+			Call c = (Call)e;
+			return interpretCallExpression(c, funcs, state);
+		}
+		
+		
 		throw new IllegalArgumentException("should never reach here");
 	}
 }

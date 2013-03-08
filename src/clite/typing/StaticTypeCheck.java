@@ -151,12 +151,15 @@ public class StaticTypeCheck {
 	 * @param tm Type map to check against
 	 */
 	public static void validate(Block b, Function func, Functions functions, TypeMap tm){
+		// whether or not we've seen a return statement
 		boolean hasReturn = false;
 		Iterator<Statement> it = b.getMembers();
 		while(it.hasNext()){
 			Statement s = it.next();
 			// special case for return statement
 			if(s instanceof Return){
+				// can only have one return statement
+				check(!hasReturn, "Function " + func.id() + " has multiple return statements!");
 				Return r = (Return)s;
 				Type t = typeOf(r.result(), functions, tm);
 				check(t == func.type(), "Return expression doesn't match function's return type! (got a " + t + ", expected a " + func.type() + ")");
@@ -164,10 +167,12 @@ public class StaticTypeCheck {
 				
 			// special case for call statement
 			} else if(s instanceof Call){
+				check(!hasReturn, "Return must be last expression in function block (in function " + func.id() + "!");
 				validate((Call) s, functions, tm);
 				
 			// else parse like regular statement (before all this function nonsense)
-			} else { 
+			} else {
+				check(!hasReturn, "Return must be last expression in function block (in function " + func.id() + "!");
 				validate(s, functions, tm);
 			}
 		}
@@ -178,7 +183,7 @@ public class StaticTypeCheck {
 		
 		// make sure void functions DON'T have return types
 		else if(func.type() == Type.VOID)
-			check(hasReturn, "Void function " + func.id() + " has return statement when it shouldn't!");
+			check(!hasReturn, "Void function " + func.id() + " has return statement when it shouldn't!");
 	}
 	
 	/**
@@ -221,6 +226,7 @@ public class StaticTypeCheck {
 		if (e instanceof Value)
 			return;
 		
+		// function call
 		if(e instanceof Call){
 			validate((Call)e, funcs, tm);
 			return;

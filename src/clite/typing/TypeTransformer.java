@@ -7,7 +7,9 @@ import clite.syntax.Type;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Call;
 import clite.syntax.function.Function;
+import clite.syntax.function.Functions;
 import clite.syntax.function.Return;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
@@ -18,7 +20,9 @@ import clite.syntax.statement.Statement;
 
 
 /**
- * Transforms the types of any operators to match their expressions
+ * Transforms the types of any operators to match their expressions.
+ * Calling transform on a program assumes that the given program
+ * has already been through and passed StaticTypeChecker.validate()
  */
 public class TypeTransformer {
 	/**
@@ -27,9 +31,36 @@ public class TypeTransformer {
 	 * @param tm Type map to use for transformation
 	 * @return Transformed program
 	 */
-	public static Program transform(Program p, TypeMap tm) {
-		Block body = (Block) transform(p.body(), tm);
-		return new Program(p.globals(), body);
+	public static Program transform(Program p) {
+		// map of all global variables
+		TypeMap globalMap = StaticTypeCheck.typing(p.globals());
+		
+		// functions list transformed functions get added to
+		Functions funcs = p.functions();
+		
+		// transform every function's body
+		for(Function f : p.functions().values()){
+			// add function's params and locals to type map
+			TypeMap newMap = new TypeMap();
+			newMap.putAll(globalMap);
+			newMap.putAll(StaticTypeCheck.typing(f.params()));
+			newMap.putAll(StaticTypeCheck.typing(f.locals()));
+			Block transformedBody = (Block) transform(f.body(), funcs, newMap);
+			
+			// add the function into the new functions map
+			funcs.put(
+					f.id(),
+					new Function(
+							f.type(),
+							f.id(),
+							f.params(),
+							f.locals(),
+							transformedBody
+					)
+			);
+		}
+		
+		return new Program(p.globals(), funcs);
 	}
 
 	/**
@@ -38,9 +69,12 @@ public class TypeTransformer {
 	 * @param tm Type map to use for transformation
 	 * @return Transformed statement
 	 */
-	public static Statement transform(Statement s, TypeMap tm) {
+	public static Statement transform(Statement s, Functions funcs, TypeMap tm) {
 		// skip any skips
-		if (s instanceof Skip)
+		if (s instanceof Skip ||
+			s instanceof Function ||
+			s instanceof Return ||
+			s instanceof Call)
 			return s;
 		
 		// assignment statement
@@ -51,7 +85,7 @@ public class TypeTransformer {
 			Expression src = a.source();
 			
 			Type targettype = (Type) tm.get(a.target());
-			Type srctype = StaticTypeCheck.typeOf(a.source(), tm);
+			Type srctype = StaticTypeCheck.typeOf(a.source(), funcs, tm);
 			
 			if (targettype == Type.FLOAT) {
 				if (srctype == Type.INT) {
@@ -80,8 +114,8 @@ public class TypeTransformer {
 			
 			Expression test = c.test();
 			
-			Statement tbr = transform(c.thenBranch(), tm);
-			Statement ebr = transform(c.elseBranch(), tm);
+			Statement tbr = transform(c.thenBranch(), funcs, tm);
+			Statement ebr = transform(c.elseBranch(), funcs, tm);
 			
 			return new Conditional(test, tbr, ebr);
 		}
@@ -104,17 +138,9 @@ public class TypeTransformer {
 			
 			Iterator<Statement> members = b.getMembers();
 			while(members.hasNext())
-				out.addMember(transform(members.next(), tm));
+				out.addMember(transform(members.next(), funcs, tm));
 			
 			return out;
-		}
-		
-		if(s instanceof Function){
-			// TODO
-		}
-		
-		if(s instanceof Return){
-			// TODO
 		}
 		
 		throw new IllegalArgumentException("should never reach here");

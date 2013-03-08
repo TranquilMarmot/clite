@@ -168,14 +168,6 @@ public class Parser {
 		match(Token.Type.LeftBrace);
 		Declarations locals = declarations(functions);
 		Block body = statements();
-		
-		// FIXME
-		if(t != Type.VOID){
-			if(currentToken.type() == Token.Type.Return){
-				returnStatement(v);
-			}
-		}
-		
 		match(Token.Type.RightBrace);
 		
 		Function f = functions.put(v.toString(), new Function(t, v.toString(), params, locals, body));
