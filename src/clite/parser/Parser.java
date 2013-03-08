@@ -160,6 +160,12 @@ public class Parser {
 		Block body = statements();
 		match(Token.Type.RightBrace);
 		
+		if(functions.containsKey(v.toString())){
+			System.err.println("Error in parser!");
+			System.err.println("Line: " + lexer.lineNumber() + " Col: " + lexer.columnNumber());
+			System.err.println("Function already defined: " + v.toString());
+			System.exit(1);
+		}
 		functions.put(v.toString(), new Function(t, v.toString(), params, locals, body));
 	}
 	

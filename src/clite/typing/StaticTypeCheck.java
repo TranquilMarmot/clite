@@ -9,7 +9,10 @@ import clite.syntax.expression.Binary;
 import clite.syntax.expression.Expression;
 import clite.syntax.expression.Unary;
 import clite.syntax.expression.Variable;
+import clite.syntax.function.Call;
+import clite.syntax.function.Function;
 import clite.syntax.function.Functions;
+import clite.syntax.function.Return;
 import clite.syntax.statement.Assignment;
 import clite.syntax.statement.Block;
 import clite.syntax.statement.Conditional;
@@ -115,11 +118,19 @@ public class StaticTypeCheck {
 	 */
 	public static void validate(Program p) {
 		validate(p.globals());
-		//validate(p.functions(), typing(p.globals())); TODO
+		validate(p.functions(), typing(p.globals()));
 	}
 	
-	public static void validate(Functions functions, TypeMap tm){
-		// TODO
+	/**
+	 * Validates functions 
+	 * @param functions Functions to validate
+	 * @param globals TypeMap of global variables
+	 */
+	public static void validate(Functions functions, TypeMap globals){
+		for(Function f : functions.values()){
+			validate(f.params());
+			validate(f.locals());
+		}
 	}
 
 	/**
@@ -305,7 +316,20 @@ public class StaticTypeCheck {
 			validate(c.test(), tm);
 			validate(c.thenBranch(), tm);
 			validate(c.elseBranch(), tm);
-		} else{
+			
+		// function call
+		} else if(s instanceof Call){
+			Call c = (Call) s;
+			
+			//if(!)
+			
+		// return statement
+		} else if(s instanceof Return){
+			
+		}
+		
+		
+		else{
 			throw new IllegalArgumentException("should never reach here " + s);
 		}
 	}

@@ -10,11 +10,11 @@ import java.util.LinkedHashMap;
  */
 @SuppressWarnings("serial")
 public class Declarations extends LinkedHashMap<String, Declaration> {
-
 	public void display(int indent) {
 		for(Declaration d : this.values()){
 			for(int i = 0; i < indent; i++)
 				System.out.print("   ");
 			System.out.println(d.variable() + " :: " + d.type());
 		}
-	}}
+	}
+}

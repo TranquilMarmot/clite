@@ -5,7 +5,7 @@ void B(int w) {
 	
 	i = 2*w;
 	w = w+1;
-} 
+}
 
 void A(int x, int y) {
 	bool i, j;

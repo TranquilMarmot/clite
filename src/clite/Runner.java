@@ -1,12 +1,8 @@
 package clite;
-import clite.interpreter.Interpreter;
-import clite.interpreter.State;
 import clite.parser.Lexer;
 import clite.parser.Parser;
 import clite.syntax.Program;
 import clite.typing.StaticTypeCheck;
-import clite.typing.TypeMap;
-import clite.typing.TypeTransformer;
 
 /**
  * Parses and interprets a given file
@@ -32,22 +28,19 @@ public class Runner {
 		System.out.println("\n-------------------------------");
 		
 		System.out.println("\nType map after static type check:");
-		TypeMap map = StaticTypeCheck.typing(prog.globals());
-		map.display();
-		
 		StaticTypeCheck.validate(prog);
-		Program out = TypeTransformer.transform(prog, map);
+		//Program out = TypeTransformer.transform(prog);
 		
 		System.out.println("\n-------------------------------");
 		
 		System.out.println("\nAbstract syntax tree after type transformer:");
-		out.display(); 
+		//out.display(); 
 		
-		State state = Interpreter.interpret(out);
+		//State state = Interpreter.interpret(out);
 		
 		System.out.println("\n-------------------------------");
 		
 		System.out.println("\nFinal State:");
-		state.display( );
+		//state.display( );
 	}
 }
