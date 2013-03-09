@@ -12,7 +12,7 @@ void A(int x, int y) {
 }
 
 int main() {
-	int a, b;
+	int a, b, c;
 	h = 5; a = 3; b = 2;
 	A(a, b);
 }

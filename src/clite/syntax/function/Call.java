@@ -37,10 +37,14 @@ public class Call implements Statement, Expression {
 	public void display(int indent) {
 		for(int i = 0; i < indent; i++)
 			System.out.print("   ");
-		String call = identifier.toString() + "(";
+		System.out.println("| call " + identifier.toString() + "(");
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("| (");
 		for(Expression e : arguments)
-			call += e.toString();
-		call += ")";
-		System.out.println("| call " + call);
+			e.display(indent + 1);
+		for(int i = 0; i < indent; i++)
+			System.out.print("   ");
+		System.out.println("| )");
 	}
 }

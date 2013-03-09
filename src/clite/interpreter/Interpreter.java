@@ -246,17 +246,27 @@ public class Interpreter {
 				// interpret the return statement's expression
 				Value v =  interpret(((Return)s).result(), funcs, state);
 				
-				// remove locals and parameters from the state
+				// remove locals and parameters from the state FIXME when do these get added/removed?!?
 				for (Declaration decl : f.locals().values())
 					state.remove(decl.variable());
 				for (Declaration decl : f.params().values())
 					state.remove(decl.variable());
 				
 				return v;
-				
-			
 			} else if(hasReturn(s)){
-				return interpretWithReturn(s, funcs, state);
+				if(s instanceof Conditional && isSkipped((Conditional)s, funcs, state))
+					continue;
+				else{
+					Value v = interpretWithReturn(s, funcs, state);
+					
+					// remove locals and parameters from the state
+					for (Declaration decl : f.locals().values())
+						state.remove(decl.variable());
+					for (Declaration decl : f.params().values())
+						state.remove(decl.variable());
+					
+					return v;
+				}
 			// else, we interpret the statement
 			} else {
 				state = interpret(s, funcs, state);
@@ -265,10 +275,16 @@ public class Interpreter {
 		throw new IllegalArgumentException("attemped to interpret function call with no return as expression");
 	}
 	
+	/**
+	 * Interpret a function call that has a return statement
+	 * @param s Statement to interpret
+	 * @param funcs Function map
+	 * @param state Current state
+	 * @return Value from return statement in statement
+	 */
 	public static Value interpretWithReturn(Statement s, Functions funcs, State state){
-		if(s instanceof Skip){
-			return null;
-		}if (s instanceof Conditional){
+		state.display();
+		if (s instanceof Conditional){
 			Conditional c = (Conditional)s;
 			Statement chosen;
 			
@@ -278,7 +294,7 @@ public class Interpreter {
 				chosen = c.elseBranch();
 			
 			if(chosen instanceof Return)
-				return interpret(((Return)s).result(), funcs, state);
+				return interpret(((Return)chosen).result(), funcs, state);
 			else
 				return interpretWithReturn(chosen, funcs, state);
 		}
@@ -294,6 +310,8 @@ public class Interpreter {
 			Iterator<Statement> it = b.getMembers();
 			while(it.hasNext()){
 				Statement bs = it.next();
+				if(bs instanceof Skip)
+					continue;
 				if(bs instanceof Return)
 					return interpret(((Return)s).result(), funcs, state);
 				else 
@@ -304,10 +322,14 @@ public class Interpreter {
 		if(s instanceof Return)
 			return interpret(((Return)s).result(), funcs, state);
 		
-		System.out.println(s.getClass().getCanonicalName());
 		throw new IllegalArgumentException("tried to interpret statement with return when it didn't have a return");
 	}
 	
+	/**
+	 * Test whether a statement contains a return
+	 * @param s Statement to test
+	 * @return Whether or not the given statement has a return
+	 */
 	public static boolean hasReturn(Statement s){
 		if (s instanceof Skip || s instanceof Assignment)
 			return false;
@@ -326,6 +348,24 @@ public class Interpreter {
 		}if(s instanceof Return)
 			return true;
 		throw new IllegalArgumentException("should never reach here");
+	}
+	
+	/**
+	 * Tells whether or not a conditional results in a Skip
+	 * @param c Condtional to test
+	 * @param funcs Function map
+	 * @param state Current state
+	 * @return Whether or not the conditional results in a skip
+	 */
+	public static boolean isSkipped(Conditional c, Functions funcs, State state){
+		Statement chosen;
+		
+		if (interpret(c.test(), funcs, state).boolValue())
+			chosen = c.thenBranch();
+		else
+			chosen = c.elseBranch();
+		
+		return chosen instanceof Skip;
 	}
 	
 	/**

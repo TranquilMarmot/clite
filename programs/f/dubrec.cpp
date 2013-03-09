@@ -1,5 +1,5 @@
-int wat(int z){
-	return z- 1;
+int wat(int x){
+	return x- 1;
 }
 
 int rec(int x){
