@@ -52,13 +52,13 @@ public class Runner {
 	 * @return None of your business
 	 */
 	private static String goodbye(){
-		String[] shutdown = { "Goodbye, world!...", "Goodbye, cruel world!...", "See ya!...", "Later!...", "Buh-bye!...", "Thank you, come again!...",
+		String[] shutdown = { "Goodbye, cruel world!...", "See ya!...", "Later!...", "Buh-bye!...", "Thank you, come again!...",
 				"Until Next Time!...", "¡Adios, Amigo!...", "Game Over, Man! Game Over!!!...", "And So, I Bid You Adieu!...", "So Long, And Thanks For All The Fish!...",
 				"¡Ciao!...", "Y'all Come Back Now, Ya Hear?...", "Catch You Later!...", "Mahalo And Aloha!...", "Sayonara!...", "Thanks For Playing!...",
 				"Auf Wiedersehen!...", "Yo Holmes, Smell Ya Later!... (Looked Up At My Kingdom, I Was Finally There, To Sit On My Throne As The Prince Of Bel-air)",
-				"Shop Smart, Shop S-Mart!...", "Good Night, And Good Luck!...", "Remember, I'm Pulling For You. We're All In This Together!...", "Keep Your Stick On The Ice!...",
+				"Shop Smart, Shop S-Mart!...", "Good Night, And Good Luck!...", "Keep Your Stick On The Ice!...",
 				"Omnia Extares!...", "C'est la vie!...", "See you on the flip side!...", "Toodle-oo!...", "Ta ta (For Now)!...", "¡Hasta La Vista, Baby!...",
-				"Komapsumnida!...", "...!olleH", "Live Long And Prosper!...", "Cheerio!...", "Shalom!...", "Peace Out!...", "Arrivederci!..."};
+				"Komapsumnida!...", "...!olleH", "Live Long And Prosper!...", "Cheerio!...", "Peace Out!...", "Arrivederci!..."};
 		
 		return shutdown[new Random().nextInt(shutdown.length)];
 	}

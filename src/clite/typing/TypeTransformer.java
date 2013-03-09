@@ -70,9 +70,17 @@ public class TypeTransformer {
 	 * @return Transformed statement
 	 */
 	public static Statement transform(Statement s, Functions funcs, TypeMap tm) {
-		// skip any skips
+		/*
+		 * Skip any skips.
+		 * 
+		 * A Return has to be same type as the function it's returning from,
+		 * as checked in StaticTypeCheck, so we can skip it
+		 * 
+		 * A Call means that a function is just being called
+		 * (otherwise it would be an assignment)
+		 * so the return type is ignored
+		 */
 		if (s instanceof Skip ||
-			s instanceof Function ||
 			s instanceof Return ||
 			s instanceof Call)
 			return s;
@@ -130,7 +138,7 @@ public class TypeTransformer {
 			return new Loop(test, body);
 		}
 		
-		// block of statments
+		// block of statements
 		if (s instanceof Block) {
 			Block b = (Block) s;
 			

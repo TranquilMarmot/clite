@@ -233,15 +233,12 @@ public class Lexer {
 	 * @return two if c is two's value, one otherwise
 	 */
 	private Token chkOpt(char c, Token one, Token two) {
-		char nextChar = nextChar();
-		
-		if (nextChar == c) 
-			return two;
-		else{
-			currentChar = nextChar;
+		currentChar = nextChar();
+		if (currentChar != c) 
 			return one;
-		}
-	}
+		currentChar = nextChar();
+		return two;
+	  }
 
 	/**
 	 * Adds characters until it hits one not in the given set

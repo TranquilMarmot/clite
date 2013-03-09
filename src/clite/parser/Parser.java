@@ -522,7 +522,7 @@ public class Parser {
 			e = expression();
 			match(Token.Type.RightParen);
 			
-		// type
+		// type cast
 		} else if (isType()) {
 			Operator op = new Operator(currentToken.value());
 			match(currentToken.type());

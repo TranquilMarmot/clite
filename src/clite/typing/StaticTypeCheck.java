@@ -139,30 +139,26 @@ public class StaticTypeCheck {
 			newMap.putAll(tm);
 			newMap.putAll(typing(func.params()));
 			newMap.putAll(typing(func.locals()));
-			validate(func.body(), func, functions, newMap);
+			validate(func, functions, newMap);
 		}
 	}
 	
 	/**
 	 * Validates a block of statements, checking for return and function calls
-	 * @param b Block to validate
-	 * @param func Function that block belongs to, for checking return type
+	 * @param func Function to validate
 	 * @param functions Map of all functions
 	 * @param tm Type map to check against
 	 */
-	public static void validate(Block b, Function func, Functions functions, TypeMap tm){
+	public static void validate(Function func, Functions functions, TypeMap tm){
 		// whether or not we've seen a return statement
 		boolean hasReturn = false;
-		Iterator<Statement> it = b.getMembers();
+		Iterator<Statement> it = func.body().getMembers();
 		while(it.hasNext()){
 			Statement s = it.next();
 			// special case for return statement
 			if(s instanceof Return){
 				// can only have one return statement
 				check(!hasReturn, "Function " + func.id() + " has multiple return statements!");
-				Return r = (Return)s;
-				Type t = typeOf(r.result(), functions, tm);
-				check(t == func.type(), "Return expression doesn't match function's return type! (got a " + t + ", expected a " + func.type() + ")");
 				hasReturn = true;
 				
 			// special case for call statement
@@ -393,7 +389,13 @@ public class StaticTypeCheck {
 			validate(c.test(), funcs, tm);
 			validate(c.thenBranch(), funcs, tm);
 			validate(c.elseBranch(), funcs, tm);
-
+		
+		// return statement
+		} else if(s instanceof Return){
+			Return r = (Return)s;
+			Function f = funcs.get(r.functionName().toString());
+			Type t = typeOf(r.result(), funcs, tm);
+			check(t == f.type(), "Return expression doesn't match function's return type! (got a " + t + ", expected a " + f.type() + ")");
 		// error!
 		}else{
 			throw new IllegalArgumentException("should never reach here " + s);
